@@ -1,0 +1,4130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPI Tracker - Strategic Plan 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    <style>
+        :root { 
+            --primary: #2563eb; 
+            --success: #22c55e; 
+            --danger: #ef4444; 
+            --warning: #f59e0b; 
+            --info: #3b82f6;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+        }
+        html {
+            font-size: 14px; /* Base font size lebih kecil untuk kepadatan informasi */
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            margin: 0; 
+            padding: 0; 
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header { 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+            padding: 8px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+        }
+        
+        .header-spacer { 
+            flex: 1; 
+        }
+        
+        .header-center { 
+            flex: 2; 
+            text-align: center; 
+        }
+        
+        .header-center h1 { 
+            font-size: 1.5rem; 
+            color: white; 
+            letter-spacing: 1px; 
+            font-weight: 700; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+            text-transform: uppercase; 
+            margin-bottom: 5px; 
+        }
+        
+        .header-center .subtitle { 
+            font-size: 0.9rem; 
+            color: rgba(255, 255, 255, 0.9); 
+            font-weight: 400; 
+            letter-spacing: 0.5px; 
+        }
+        
+        .header-right { 
+            flex: 1; 
+            display: flex; 
+            justify-content: flex-end; 
+            align-items: center; 
+        }
+        
+        .user-info { 
+            font-weight: 600; 
+            color: white; 
+            font-size: 0.85rem; 
+            background: rgba(255,255,255,0.15); 
+            padding: 8px 18px; 
+            border-radius: 25px; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            -webkit-backdrop-filter: blur(10px); 
+            backdrop-filter: blur(10px); 
+        }
+        
+        .user-info:hover {
+            background: rgba(255,255,255,0.25);
+            cursor: pointer;
+        }
+        
+        .header-btn { 
+            background: rgba(255,255,255,0.15); 
+            border: 1px solid rgba(255,255,255,0.2); 
+            color: white; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            -webkit-backdrop-filter: blur(10px); 
+            backdrop-filter: blur(10px); 
+            margin-right: 10px; 
+        }
+
+        /* Status Indicator Styles */
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #22c55e; /* Green - Connected/Saved */
+            margin-right: 15px;
+            cursor: help;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+            display: inline-block;
+        }
+        .status-indicator.saving {
+            background-color: #f59e0b; /* Orange - Saving */
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+            animation: pulse-status 1.5s infinite;
+        }
+        .status-indicator.error {
+            background-color: #ef4444; /* Red - Error */
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+        @keyframes pulse-status {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* --- START: SIDEBAR STYLES --- */
+        .wrapper {
+            display: flex;
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        nav {
+            width: 240px;
+            background: white;
+            border-right: 1px solid var(--border);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        main {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* SIDEBAR LOGO */
+        .sidebar-logo { display: flex; flex-direction: column; align-items: center; padding: 10px; border-bottom: 1px solid #f1f5f9; margin-bottom: 5px; width: 100%; transition: all 0.3s; min-height: 70px; justify-content: center; }
+        .sidebar-logo img { height: 45px; width: 45px; object-fit: cover; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 5px; transition: all 0.3s; }
+        .sidebar-logo .company-name { font-size: 12px; color: #1e3c72; font-weight: 800; margin-top: 5px; letter-spacing: 0.5px; white-space: nowrap; text-transform: uppercase; }
+        .logo-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+        .sidebar-toggle-btn {
+            position: absolute;
+            left: 225px; /* 240px - 15px */
+            top: 100px;
+            z-index: 999;
+            background: white;
+            border: 1px solid var(--border);
+            color: #1e3c72;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+        }
+        .sidebar-toggle-btn:hover { 
+            background: #f1f5f9; 
+            color: #3b82f6; 
+            transform: scale(1.1); 
+        }
+        .sidebar-toggle-btn i {
+            transition: transform 0.3s;
+        }
+
+        body.sidebar-collapsed nav {
+            width: 80px;
+        }
+        body.sidebar-collapsed .sidebar-logo { padding: 15px 5px; }
+        body.sidebar-collapsed .sidebar-logo img { height: 40px; width: 40px; margin-bottom: 5px; }
+        body.sidebar-collapsed .sidebar-logo .company-name { display: none; }
+        body.sidebar-collapsed .filter-tab span {
+            display: none;
+        }
+        body.sidebar-collapsed .filter-tab {
+            justify-content: center;
+            padding: 14px 0;
+        }
+        body.sidebar-collapsed .sidebar-toggle-btn {
+            left: 65px; /* 80px - 15px */
+            top: 85px;
+        }
+        body.sidebar-collapsed .sidebar-toggle-btn i {
+            transform: rotate(180deg);
+        }
+        .nav-bottom {
+            margin-top: auto;
+            padding: 20px 10px;
+            text-align: center;
+        }
+        .app-version { font-size: 11px; color: #94a3b8; font-weight: 500; line-height: 1.4; }
+        body.sidebar-collapsed .app-version {
+            display: none;
+        }
+        /* --- END: SIDEBAR STYLES --- */
+        
+        .header-btn:hover { 
+            background: rgba(255,255,255,0.25); 
+            transform: scale(1.05); 
+            box-shadow: 0 0 10px rgba(255,255,255,0.3); 
+        }
+        
+        .header-btn i { 
+            font-size: 16px; 
+        }
+        
+        .controls {
+            padding: 15px 20px;
+            background: var(--light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        .legend-item span:last-child {
+            font-size: 0.8rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .page-title h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+        .page-title p {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin: 0;
+        }
+        
+        .btn { 
+            padding: 8px 16px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn.btn-add {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 0 15px;
+        }
+        
+        .filter-tab {
+            padding: 10px 15px;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: left;
+        }
+
+        .filter-tab i {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .filter-tab:hover {
+            background: #f3f4f6;
+            color: var(--primary);
+        }
+        
+        .filter-tab:hover i {
+            transform: scale(1.2);
+        }
+        
+        .filter-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        
+        .content-area {
+            padding: 0 20px 20px 20px;
+        }
+        
+        .table-responsive-custom {
+            max-height: 600px;
+            overflow: auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            background: white;
+            border: 1px solid var(--border);
+        }
+        
+        .main-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: white;
+        }
+        
+        .main-table th { 
+            background: linear-gradient(135deg, var(--light), #e2e8f0); 
+            padding: 6px 8px; 
+            text-align: center; 
+            font-weight: 600; 
+            color: #1e293b;
+            border: 1px solid var(--border);
+            border-bottom: 2px solid var(--border);
+            font-size: 0.95rem;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .main-table td { 
+            padding: 4px 6px; 
+            border: 1px solid var(--border); 
+            border-bottom: 1px solid var(--border); 
+            vertical-align: middle;
+            font-size: 1rem;
+        }
+        
+        .main-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .perspective-cell {
+            font-weight: 600;
+            color: var(--primary);
+            text-align: center;
+            padding: 4px;
+            font-size: 0.85rem;
+        }
+        
+        .target-cell {
+            font-weight: 500;
+            color: var(--secondary-color);
+            text-align: center;
+            padding: 4px 6px;
+            font-size: 0.85rem;
+        }
+        
+        .strategy-cell {
+            font-weight: 500;
+            color: var(--info);
+            max-width: 200px;
+            line-height: 1.3;
+            text-align: left;
+            padding: 4px 6px;
+            font-size: 0.85rem;
+        }
+        
+        .perspective-cell[rowspan],
+        .target-cell[rowspan],
+        .strategy-cell[rowspan] {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-right: 2px solid var(--primary);
+            position: relative;
+        }
+        
+        .perspective-cell[rowspan] {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        }
+        
+        .target-cell[rowspan] {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        }
+        
+        .strategy-cell[rowspan] {
+            background: linear-gradient(135deg, #fefce8, #fef3c7);
+        }
+        
+        .activity-cell {
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .pic-badge {
+            background: var(--primary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .timeline-grid { 
+            display: flex; 
+            gap: 2px; 
+            min-width: 260px;
+            justify-content: space-between;
+        }
+        
+        .timeline-grid .month-cell {
+            width: calc((100% - 22px) / 12);
+            flex-shrink: 0;
+        }
+        
+        .month-cell { 
+            border: 1px solid var(--border); 
+            border-radius: 3px; 
+            cursor: pointer; 
+            font-size: 0.75rem; 
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 15px;
+            height: 20px;
+        }
+        
+        .month-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .month-cell.plan { 
+            background: #fef3c7; 
+            color: #92400e;
+            border-color: #f59e0b;
+        }
+        
+        .month-cell.act { 
+            background: #dcfce7; 
+            color: #166534;
+            border-color: #22c55e;
+        }
+        
+        .month-cell.missed {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-color: var(--danger);
+        }
+
+        .month-cell.empty {
+            background: #f8fafc;
+            color: #94a3b8;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+        }
+
+        /* Context Menu Styles */
+        .context-menu {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            padding: 5px 0;
+            z-index: 10000;
+            min-width: 160px;
+        }
+        .context-menu.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .context-menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: #333;
+            transition: background 0.2s;
+        }
+        .context-menu-item:hover {
+            background-color: #f1f5f9;
+            color: var(--primary);
+        }
+        .context-menu-item i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .btn-edit:hover {
+            background: #d97706;
+        }
+        
+        .btn-delete { 
+            background: var(--danger); 
+            color: white; 
+        }
+        
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #2563eb;
+        }
+
+        .btn-add-child {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-add-child:hover {
+            background: #15803d;
+        }
+        
+        .btn-sheet {
+            background: #0ea5e9;
+            color: white;
+        }
+        
+        .btn-sheet:hover {
+            background: #0284c7;
+        }
+        
+        .btn-save-cloud {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-save-cloud:hover {
+            background: #15803d;
+        }
+        
+        .btn-period {
+            background: white;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+        
+        .btn-period:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: #1e293b;
+        }
+        
+        .btn-load {
+            background: #64748b;
+            color: white;
+        }
+        
+        .btn-load:hover {
+            background: #475569;
+        }
+        
+        /* Year Picker Styles */
+        .year-picker-popup {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 10px;
+            z-index: 1000;
+            width: 220px;
+            margin-top: 5px;
+        }
+        .year-picker-popup.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        .year-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .year-header span {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.9rem;
+        }
+        .btn-year-nav {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .btn-year-nav:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+        .year-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+        .year-cell {
+            padding: 8px 0;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #333;
+            transition: all 0.2s;
+        }
+        .year-cell:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+        .year-cell.active {
+            background: var(--primary);
+            color: white;
+        }
+        .year-cell.outside-range {
+            color: #cbd5e1;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse-warning {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        
+        .btn-pulse {
+            animation: pulse-warning 2s infinite;
+            background-color: var(--warning) !important;
+            color: white !important;
+            border-color: var(--warning) !important;
+        }
+        
+        /* Custom Tooltip Styling */
+        #custom-tooltip {
+            position: fixed;
+            background: rgba(15, 23, 42, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            z-index: 9999;
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            white-space: nowrap;
+            backdrop-filter: blur(4px);
+            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* SWITCH TOGGLE */
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* DARK MODE STYLES */
+        body.dark-mode { background-color: #121212 !important; color: #e0e0e0; }
+        body.dark-mode nav { background-color: #1e1e1e; border-right-color: #333; }
+        body.dark-mode .sidebar-logo { border-bottom-color: #333; }
+        body.dark-mode .company-name { color: #fff; }
+        body.dark-mode .filter-tab { color: #aaa; }
+        body.dark-mode .filter-tab:hover { background-color: #333; color: #fff; }
+        body.dark-mode .sidebar-toggle-btn { background-color: #1e1e1e; border-color: #333; color: #fff; }
+        body.dark-mode .sidebar-toggle-btn:hover { background-color: #333; }
+        body.dark-mode .controls { background-color: #1e1e1e; }
+        body.dark-mode .page-title h2 { color: #fff; }
+        body.dark-mode .page-title p { color: #aaa; }
+        body.dark-mode .legend-container { background-color: #1e1e1e; border-color: #333; }
+        body.dark-mode .legend-item span:last-child { color: #ccc; }
+        body.dark-mode .btn-period { background-color: #2d2d2d; border-color: #444; color: #fff; }
+        body.dark-mode .btn-period:hover { background-color: #333; }
+        body.dark-mode .main-table { background-color: #1e1e1e; color: #e0e0e0; }
+        body.dark-mode .main-table th { background: #333; color: #fff; border-color: #444; }
+        body.dark-mode .main-table td { border-color: #333; color: #ddd; }
+        body.dark-mode .main-table tr:hover { background-color: #2d2d2d; }
+        body.dark-mode .activity-cell { color: #ddd; }
+        body.dark-mode .perspective-cell { color: #93c5fd; }
+        body.dark-mode .target-cell { color: #86efac; }
+        body.dark-mode .strategy-cell { color: #fcd34d; }
+        body.dark-mode .perspective-cell[rowspan] { background: linear-gradient(135deg, #1e293b, #2c3e50); border-right-color: #444; }
+        body.dark-mode .target-cell[rowspan] { background: linear-gradient(135deg, #164e32, #14532d); border-right-color: #444; }
+        body.dark-mode .strategy-cell[rowspan] { background: linear-gradient(135deg, #422006, #5f370e); border-right-color: #444; }
+        body.dark-mode .modal-content { background-color: #1e1e1e; color: #fff; }
+        body.dark-mode .modal-title { color: #fff; }
+        body.dark-mode .form-label { color: #ccc; }
+        body.dark-mode .form-control { background-color: #2d2d2d; border-color: #444; color: #fff; }
+        body.dark-mode .modal-footer { border-top-color: #333; }
+        body.dark-mode .year-picker-popup { background-color: #1e1e1e; border-color: #333; }
+        body.dark-mode .year-header { border-bottom-color: #333; }
+        body.dark-mode .year-header span { color: #fff; }
+        body.dark-mode .year-cell { color: #ccc; }
+        body.dark-mode .year-cell:hover { background-color: #333; }
+        body.dark-mode .year-cell.outside-range { color: #555; }
+        body.dark-mode .month-cell.empty { background: #2d2d2d; border-color: #444; }
+        
+        /* Accordion Styles */
+        .accordion-header {
+            background: transparent;
+            padding: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #374151;
+            border: none;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+        .accordion-header:hover { color: var(--primary); }
+        .accordion-content { display: none; padding: 10px 0; border: none; margin-top: 0; margin-bottom: 15px; background: transparent; animation: slideDown 0.3s ease-out; }
+        .accordion-content.show { display: block; }
+        .accordion-header.active .accordion-icon { transform: rotate(180deg); }
+        .accordion-header.active { color: var(--primary); }
+        body.dark-mode .accordion-header { background-color: transparent; border: none; color: #e0e0e0; }
+        body.dark-mode .accordion-header:hover { color: #fff; }
+        body.dark-mode .accordion-header.active { color: #fff; }
+        body.dark-mode .accordion-content { background-color: transparent; border: none; }
+        
+        /* Shake Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+            border-color: var(--danger) !important;
+        }
+        
+        /* Password Toggle Style */
+        .password-wrapper { position: relative; }
+        .password-wrapper input { padding-right: 40px; }
+        .password-toggle-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #64748b;
+        }
+        
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            z-index: 1000;
+        }
+        
+        .modal.show { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .modal-content { 
+            background: white; 
+            padding: 5px; 
+            border-radius: 15px; 
+            width: 90%; 
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            margin-bottom: 5px;
+            flex-shrink: 0;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        .form-group {
+            margin-bottom: 5px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .modal-footer {
+            display: flex; 
+            gap: 2px; 
+            justify-content: flex-end;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+        
+        .btn-save {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background: #16a34a;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 0;
+            height: 100%;
+        }
+        
+        .dashboard-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: stretch;
+        }
+        
+        .chart-col { flex: 1.6; min-width: 0; }
+        .pie-col { flex: 0.6; min-width: 0; }
+        .stats-col { flex: 1; min-width: 0; }
+        
+        .stat-card {
+            padding: 12px;
+            border-radius: 15px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: none;
+            text-align: left;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card i {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            font-size: 28px;
+            opacity: 0.6;
+            color: white;
+        }
+        
+        .stat-card:nth-child(1) { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+        .stat-card:nth-child(2) { background: linear-gradient(135deg, #0f766e 0%, #115e59 100%); }
+        .stat-card:nth-child(3) { background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); }
+        .stat-card:nth-child(4) { background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%); }
+        .stat-card:nth-child(5) { background: linear-gradient(135deg, #4776E6 0%, #8E54E9 100%); }
+        .stat-card:nth-child(6) { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: white;
+            margin: 0;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            opacity: 0.9;
+            letter-spacing: 0.5px;
+            color: white;
+            margin-bottom: 5px;
+            margin-top: 0;
+        }
+        
+        /* Dropdown Modal Style */
+        .modal.dropdown-modal.show {
+            display: block;
+        }
+        .modal.dropdown-modal .modal-content {
+            position: absolute;
+            margin: 0;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .viewer-label {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 25px;
+            border-radius: 25px;
+            z-index: 10001;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        /* Image Viewer Styles */
+        .image-viewer-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            padding-top: 0;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: rgba(0,0,0,0.95);
+        }
+        
+        .viewer-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90vh;
+            transition: transform 0.1s ease-out;
+            cursor: grab;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .viewer-content:active {
+            cursor: grabbing;
+        }
+
+        .close-viewer {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            z-index: 10001;
+            cursor: pointer;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .close-viewer:hover {
+            color: #bbb;
+        }
+
+        .viewer-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10001;
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .viewer-controls button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .viewer-controls button:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard-row { flex-direction: column; }
+            .summary-stats {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                grid-template-rows: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .timeline-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .main-table {
+                font-size: 0.85rem;
+            }
+            
+            .main-table th,
+            .main-table td {
+                padding: 8px;
+            }
+        }
+
+        /* Driver.js Customization */
+        .driver-popover-title {
+            background: transparent !important;
+        }
+
+        /* Tutor Animation */
+        .tutor-wrapper {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+            margin-top: -10px; /* Adjust vertical alignment */
+            margin-left: -10px; /* Adjust horizontal alignment */
+            perspective: 500px;
+        }
+        .tutor-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            animation: floatTutor 3s ease-in-out infinite;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+        }
+        @keyframes floatTutor {
+            0%, 100% { transform: translateY(0) rotateY(0deg); }
+            50% { transform: translateY(-8px) rotateY(10deg); }
+        }
+
+        /* SweetAlert2 Toast Customization */
+        body.dark-mode .swal2-timer-progress-bar {
+            background: rgba(255,255,255,0.7) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+            <nav>
+                <div class="sidebar-logo">
+                    <div class="logo-wrapper">
+                        <img src="https://raw.githubusercontent.com/Ariyanto92/logo/refs/heads/main/ARAYA.jpg" alt="Logo">
+                        <span class="company-name">ARAYA TECH</span>
+                    </div>
+                </div>
+                <div class="filter-tabs">
+                    <!-- Sidebar akan digenerate oleh JavaScript -->
+                </div>
+                <div class="nav-bottom">
+                    <div class="app-version">
+                        <div id="appVersion">Versi 1.0.0</div>
+                        <div>&copy; 2026 ARAYA. All Rights Reserved.</div>
+                    </div>
+                </div>
+            </nav>
+            <button id="sidebarToggle" class="sidebar-toggle-btn" onclick="toggleSidebar()">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <div class="main-content">
+                <header>
+                    <div class="header-spacer"></div>
+                    <div class="header-center">
+                        <h1>KEY PERFORMANCE INDICATORS</h1>
+                        <div class="subtitle">Strategic Plan <span id="headerPeriod">2026</span></div>
+                    </div>
+                    <div class="header-right">
+                       <div id="statusIndicator" class="status-indicator" data-tooltip="Connection Status"></div>
+                       <button class="header-btn" onclick="startTour()" title="Panduan / Tutorial">
+                           <i class="bi bi-question-lg"></i>
+                       </button>
+                       <button class="header-btn" onclick="openSettings(this)" title="Settings">
+                           <i class="bi bi-gear-fill"></i>
+                       </button>
+                       <button class="header-btn" onclick="toggleFullscreen()" title="Fullscreen Mode">
+                           <i class="bi bi-fullscreen" id="fullscreenIcon"></i>
+                       </button>
+                       <div class="user-info" onclick="handleUserClick(this)" title="User Account">
+                           <i class="bi bi-person-circle"></i> <span id="userNameDisplay">PPIC, Plant 3</span>
+                       </div>
+                    </div>
+                </header>
+
+            <main>
+                <div class="controls">
+                    <div class="page-title">
+                        <h2 id="dashboardTitle">OVERALL PERSPEKTIF</h2>
+                        <p id="dashboardDesc">Ringkasan dan detail Key Performance Indicators.</p>
+                    </div>
+                    <div class="controls-right">
+                        <div class="position-relative d-inline-block">
+                            <button class="btn btn-period" onclick="toggleYearPicker()">
+                                <i class="bi bi-calendar-range"></i> <span id="periodText">Periode: 2026</span>
+                            </button>
+                            <div id="yearPicker" class="year-picker-popup">
+                                <div class="year-header">
+                                    <button class="btn-year-nav" onclick="navigateYearRange(-1)"><i class="bi bi-chevron-left"></i></button>
+                                    <span id="yearRangeDisplay">2020 - 2029</span>
+                                    <button class="btn-year-nav" onclick="navigateYearRange(1)"><i class="bi bi-chevron-right"></i></button>
+                                </div>
+                                <div class="year-grid" id="yearGrid"></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-load" onclick="loadFromSheet()" title="Muat Ulang Data">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="content-area">
+                    <div class="dashboard-row">
+                        <div class="stats-col">
+                            <div class="summary-stats">
+                                <div class="stat-card">
+                                    <div class="stat-label">Total Perspektif</div>
+                                    <div class="stat-value" id="totalPerspectives">0</div>
+                                    <i class="bi bi-grid-fill"></i>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">Total Aktivitas</div>
+                                    <div class="stat-value" id="totalActivities">8</div>
+                                    <i class="bi bi-list-task"></i>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">Selesai</div>
+                                    <div class="stat-value" id="completedActivities">2</div>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">Progress Timeline</div>
+                                    <div class="stat-value" id="overallProgress">37.5%</div>
+                                    <i class="bi bi-bar-chart-fill"></i>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">On Schedule</div>
+                                    <div class="stat-value" id="onScheduleCount">0</div>
+                                    <i class="bi bi-calendar-check-fill"></i>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">Out Schedule</div>
+                                    <div class="stat-value" id="outScheduleCount">0</div>
+                                    <i class="bi bi-calendar-x-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pie-col">
+                            <div class="chart-wrapper" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); height: 200px; min-height: 180px; color: white;">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-col">
+                            <div class="chart-wrapper" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); height: 100%; min-height: 180px; color: white;">
+                                <canvas id="perspectiveChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+                        <h3 style="font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0;">ACTIVITY PLAN</h3>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="legend-container">
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #fef3c7; border: 1px solid #f59e0b;"></span>
+                                    <span>Plan</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #dcfce7; border: 1px solid #22c55e;"></span>
+                                    <span>Actual</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #fee2e2; border: 1px solid #ef4444;"></span>
+                                    <span>Out Schedule</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-save-cloud btn-save-activities" onclick="saveActivitiesToSheet()">
+                                <i class="bi bi-cloud-upload"></i> Simpan Aktivitas
+                            </button>
+                            <button class="btn btn-add" onclick="openModal()">
+                                <i class="bi bi-plus-circle"></i> Tambah Aktivitas
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive-custom">
+                    <table class="main-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px; text-align: center;">PERSPEKTIF</th>
+                                <th style="width: 200px; text-align: center;">TARGET</th>
+                                <th style="width: 300px; text-align: center;">STRATEGY</th>
+                                <th style="width: 250px; text-align: center;">ACTIVITY PLAN</th>
+                                <th style="width: 120px; text-align: center;">PIC</th>
+                                <th style="width: 400px;">
+                                    <div style="display: flex; flex-direction: column; align-items: center;">
+                                        <span style="text-align: center;">TIMELINE</span>
+                                        <div style="display: flex; gap: 2px; margin-top: 5px; font-size: 0.85rem; justify-content: space-between; width: 100%;">
+                                            <span>Jan</span>
+                                            <span>Feb</span>
+                                            <span>Mar</span>
+                                            <span>Apr</span>
+                                            <span>Mei</span>
+                                            <span>Jun</span>
+                                            <span>Jul</span>
+                                            <span>Agu</span>
+                                            <span>Sep</span>
+                                            <span>Okt</span>
+                                            <span>Nov</span>
+                                            <span>Des</span>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                    </div>
+
+                    <!-- TABEL ANALISA DAN PERBAIKAN -->
+                    <div id="analysis-section" style="margin-top: 40px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="font-size: 1.3rem; font-weight: 700; color: #1e293b; margin: 0;">ANALISA DAN PERBAIKAN</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-save-cloud btn-save-analysis" onclick="saveAnalysisToSheet()">
+                                    <i class="bi bi-cloud-upload"></i> Simpan Analisa
+                                </button>
+                                <button class="btn btn-add" onclick="openAnalysisModal()">
+                                    <i class="bi bi-plus-circle"></i> Tambah Analisa
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive-custom">
+                        <table class="main-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="width: 100px; text-align: center; vertical-align: middle;">PERSPEKTIF</th>
+                                    <th rowspan="2" style="width: 100px; text-align: center; vertical-align: middle; display: none;">TANGGAL</th>
+                                    <th rowspan="2" style="width: 200px; text-align: center; vertical-align: middle;">MASALAH</th>
+                                    <th rowspan="2" style="width: 200px; text-align: center; vertical-align: middle;">ANALISA</th>
+                                    <th rowspan="2" style="width: 200px; text-align: center; vertical-align: middle;">PERBAIKAN</th>
+                                    <th colspan="2" style="text-align: center; vertical-align: middle;">ILUSTRASI</th>
+                                    <th rowspan="2" style="width: 80px; text-align: center; vertical-align: middle;">PIC</th>
+                                    <th rowspan="2" style="width: 100px; text-align: center; vertical-align: middle;">DUE DATE</th>
+                                    <th rowspan="2" style="width: 100px; text-align: center; vertical-align: middle;">PROGRESS</th>
+                                </tr>
+                                <tr>
+                                    <th style="width: 100px; text-align: center; top: 33px;">BEFORE</th>
+                                    <th style="width: 100px; text-align: center; top: 33px;">AFTER</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analysisTableBody">
+                                <tr>
+                                    <td colspan="10" style="text-align: center; padding: 30px; color: #64748b;"> <!-- Colspan adjusted -->
+                                        <i class="bi bi-clipboard-data" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+                                        <div>Belum ada data analisa</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <div id="analysisPagination" style="display: flex; justify-content: flex-end; align-items: center; gap: 5px; margin-top: 10px;"></div>
+                    </div>
+                </div>
+            </main>
+            </div>
+        </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Tambah Aktivitas Baru</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Perspektif:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="perspectiveOrder" class="form-control" placeholder="No." style="width: 80px;" min="1">
+                        <input type="text" id="perspective" class="form-control" placeholder="Masukkan perspektif..." list="perspectiveList" oninput="checkPerspectiveOrder()" style="flex: 1;">
+                    </div>
+                    <datalist id="perspectiveList"></datalist>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Target:</label>
+                    <input type="text" id="target" class="form-control" placeholder="Masukkan target..." list="targetList">
+                    <datalist id="targetList"></datalist>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Strategy:</label>
+                    <input type="text" id="strategy" class="form-control" placeholder="Masukkan strategy..." list="strategyList">
+                    <datalist id="strategyList"></datalist>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Activity Plan:</label>
+                    <input type="text" id="activity" class="form-control" placeholder="Masukkan activity plan...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">PIC:</label>
+                    <input type="text" id="pic" class="form-control" placeholder="Masukkan PIC...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Link Google Sheet:</label>
+                    <input type="url" id="sheetLink" class="form-control" placeholder="https://docs.google.com/spreadsheets/...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Timeline (Klik bulan untuk mengubah status):</label>
+                    <div class="timeline-grid" id="modalTimeline"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeModal()">Batal</button>
+                <button class="btn btn-save" onclick="save()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANALYSIS MODAL -->
+    <div id="analysisModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="analysisModalTitle">Tambah Analisa & Perbaikan</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Perspektif:</label>
+                    <input type="text" id="anaPerspective" class="form-control" list="perspectiveList" placeholder="Pilih perspektif...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Masalah:</label>
+                    <textarea id="anaProblem" class="form-control" rows="2" placeholder="Deskripsi masalah..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Analisa:</label>
+                    <textarea id="anaAnalysis" class="form-control" rows="2" placeholder="Analisa akar masalah..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Perbaikan:</label>
+                    <textarea id="anaImprovement" class="form-control" rows="2" placeholder="Rencana perbaikan..."></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-6 form-group">
+                        <label class="form-label">Ilustrasi Before:</label>
+                        <img id="anaBeforePreview" alt="Preview Before" style="display:none; max-width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border);">
+                        <input type="file" id="anaBefore" class="form-control" accept="image/*" onchange="previewImage(this, 'anaBeforePreview')">
+                        <input type="hidden" id="anaBeforeUrl">
+                    </div>
+                    <div class="col-6 form-group">
+                        <label class="form-label">Ilustrasi After:</label>
+                        <img id="anaAfterPreview" alt="Preview After" style="display:none; max-width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border);">
+                        <input type="file" id="anaAfter" class="form-control" accept="image/*" onchange="previewImage(this, 'anaAfterPreview')">
+                        <input type="hidden" id="anaAfterUrl">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3 form-group">
+                        <label class="form-label">Tanggal:</label>
+                        <input type="date" id="anaDate" class="form-control">
+                    </div>
+                    <div class="col-3 form-group">
+                        <label class="form-label">PIC:</label>
+                        <input type="text" id="anaPic" class="form-control" placeholder="PIC...">
+                    </div>
+                    <div class="col-3 form-group">
+                        <label class="form-label">Due Date:</label>
+                        <input type="date" id="anaDueDate" class="form-control">
+                    </div>
+                    <div class="col-3 form-group">
+                        <label class="form-label">Progress (%):</label>
+                        <input type="number" id="anaProgress" class="form-control" min="0" max="100" placeholder="0-100">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeAnalysisModal()">Batal</button>
+                <button class="btn btn-save" onclick="saveAnalysis()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Tooltip Container -->
+    <div id="custom-tooltip"></div>
+
+    <!-- Context Menu Container -->
+    <div id="contextMenu" class="context-menu"></div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 class="modal-title" style="font-size: 1.2rem; margin: 0;">Pengaturan</h2>
+                <button type="button" onclick="closeSettings()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:inherit;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Tampilan Aplikasi</label>
+                    <div style="display:flex; align-items:center; gap:15px; background:transparent; padding:10px 0; border:none;" id="darkModeContainer">
+                        <label class="switch">
+                          <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+                          <span class="slider round"></span>
+                        </label>
+                        <span id="darkModeLabel" style="font-weight:600; font-size:14px;">Light Mode</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Auto Save (5 Menit)</label>
+                    <div style="display:flex; align-items:center; gap:15px; background:transparent; padding:10px 0; border:none;">
+                        <label class="switch">
+                          <input type="checkbox" id="autoSaveToggle" onchange="toggleAutoSave()">
+                          <span class="slider round"></span>
+                        </label>
+                        <span id="autoSaveLabel" style="font-weight:600; font-size:14px;">Disabled</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Suara Tutorial</label>
+                    <div style="display:flex; align-items:center; gap:15px; background:transparent; padding:10px 0; border:none;">
+                        <label class="switch">
+                          <input type="checkbox" id="voiceTutorialToggle" onchange="toggleVoiceTutorial()">
+                          <span class="slider round"></span>
+                        </label>
+                        <span id="voiceTutorialLabel" style="font-weight:600; font-size:14px;">Enabled</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Tutorial Pengguna</label>
+                    <button class="btn btn-period" onclick="resetTutorial()" style="width: 100%; justify-content: center; border: 1px solid var(--border);">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset Status Tutorial
+                    </button>
+                </div>
+                
+                <div class="accordion-header" onclick="toggleAccordion('companyProfileAccordion', this)">
+                    <span><i class="bi bi-building"></i> Company Profile</span>
+                    <i class="bi bi-chevron-down accordion-icon"></i>
+                </div>
+                <div id="companyProfileAccordion" class="accordion-content">
+                    <div class="form-group">
+                        <label class="form-label">Logo Perusahaan</label>
+                        <img id="logoPreview" alt="Logo Preview" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 2px solid var(--border); display: none; cursor: pointer;" onclick="document.getElementById('logoFileInput').click();">
+                        <input type="file" id="logoFileInput" class="form-control" accept="image/png, image/jpeg, image/gif" onchange="previewLogo(this)">
+                        <input type="hidden" id="currentLogoUrl">
+                    </div>
+                    <div class="form-group"><label class="form-label">Nama Perusahaan</label><input type="text" id="companyNameInput" class="form-control" placeholder="PT. CONTOH"></div>
+                    <div class="form-group"><label class="form-label">Ukuran Font (px)</label><input type="number" id="companyFontSizeInput" class="form-control" placeholder="12"></div>
+                    <div class="form-group">
+                        <label class="form-label">Jenis Font</label>
+                        <select id="companyFontFamilyInput" class="form-control">
+                            <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                            <option value="'Arial', sans-serif">Arial</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                            <option value="'Georgia', serif">Georgia</option>
+                            <option value="'Verdana', sans-serif">Verdana</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Warna Font</label><input type="color" id="companyFontColorInput" class="form-control" style="height: 40px; padding: 5px;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-save" onclick="saveSettings()" style="width:100%; justify-content: center;">Simpan Pengaturan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content" style="max-width: 350px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 class="modal-title" style="font-size: 1.2rem; margin: 0;">Login User</h2>
+                <button type="button" onclick="closeLoginModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:inherit;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="loginUsername" class="form-control" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="loginPassword" class="form-control" placeholder="Enter password">
+                        <i class="bi bi-eye password-toggle-icon" onclick="togglePasswordVisibility()"></i>
+                    </div>
+                    <div id="capsLockWarning" style="display:none; color: #ef4444; font-size: 0.8rem; margin-top: 5px; font-weight: 500;">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Caps Lock is on
+                    </div>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                    <input type="checkbox" id="rememberMe" style="width: 16px; height: 16px; cursor: pointer;">
+                    <label for="rememberMe" style="margin: 0; font-size: 0.9rem; color: #374151; cursor: pointer;">Remember Me</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-save" onclick="handleLogin()" style="width:100%; justify-content: center;">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="imageViewerModal" class="image-viewer-modal">
+        <span class="close-viewer" onclick="closeImageViewer()">&times;</span>
+        <div id="viewerLabel" class="viewer-label"></div>
+        <div class="viewer-controls">
+            <button onclick="navigateImage(-1)" title="Previous"><i class="bi bi-chevron-left"></i></button>
+            <button onclick="zoomImage(0.1)" title="Zoom In"><i class="bi bi-zoom-in"></i></button>
+            <button onclick="zoomImage(-0.1)" title="Zoom Out"><i class="bi bi-zoom-out"></i></button>
+            <button onclick="rotateImage()" title="Rotate"><i class="bi bi-arrow-clockwise"></i></button>
+            <button onclick="resetZoom()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
+            <button onclick="navigateImage(1)" title="Next"><i class="bi bi-chevron-right"></i></button>
+        </div>
+        <img class="viewer-content" id="fullImage">
+    </div>
+
+    <script>
+        let activities = [];
+        let analysisData = [];
+        let currentAnalysisPage = 1;
+        const analysisRowsPerPage = 5;
+        let isActivitiesDirty = false;
+        let isAnalysisDirty = false;
+
+        let currentEdit = null;
+        let currentAnalysisEdit = null;
+        let modalTimeline = new Array(12).fill('');
+        let currentFilter = 'all';
+        let perspectiveChart = null;
+        let statusChart = null;
+
+        function getPerspectiveIcon(perspective) {
+            const p = perspective.toLowerCase();
+            // Keuangan
+            if (p.includes('keuangan') || p.includes('finance') || p.includes('profit') || p.includes('revenue') || p.includes('cost') || p.includes('budget')) return 'bi-cash-coin';
+            // Pelanggan / Marketing
+            if (p.includes('pelanggan') || p.includes('customer') || p.includes('client') || p.includes('market') || p.includes('sales') || p.includes('penjualan')) return 'bi-people-fill';
+            // Proses Internal / Operasional
+            if (p.includes('proses') || p.includes('process') || p.includes('internal') || p.includes('ops') || p.includes('operation') || p.includes('produksi') || p.includes('production')) return 'bi-gear-fill';
+            // Pertumbuhan / SDM / HR
+            if (p.includes('pertumbuhan') || p.includes('growth') || p.includes('learning') || p.includes('belajar') || p.includes('sdm') || p.includes('hr') || p.includes('people') || p.includes('karyawan')) return 'bi-graph-up-arrow';
+            // IT / Teknologi
+            if (p.includes('it') || p.includes('tech') || p.includes('system') || p.includes('digital') || p.includes('software')) return 'bi-pc-display';
+            // Safety / K3
+            if (p.includes('safety') || p.includes('k3') || p.includes('hse') || p.includes('security') || p.includes('keamanan')) return 'bi-shield-check';
+            // Quality / Mutu
+            if (p.includes('quality') || p.includes('kualitas') || p.includes('mutu') || p.includes('qa') || p.includes('qc')) return 'bi-award';
+            // Logistik / Supply Chain
+            if (p.includes('logistik') || p.includes('supply') || p.includes('gudang') || p.includes('warehouse') || p.includes('inventory')) return 'bi-box-seam';
+            // Improvement / Perbaikan
+            if (p.includes('improvement') || p.includes('perbaikan') || p.includes('kaizen') || p.includes('inovasi') || p.includes('innovation')) return 'bi-lightbulb-fill';
+            
+            return 'bi-circle';
+        }
+
+        function getSortedPerspectives() {
+            const unique = [...new Set(activities.map(a => a.perspective))];
+            return unique.sort((a, b) => {
+                const orderA = activities.find(act => act.perspective === a)?.perspectiveOrder || 999;
+                const orderB = activities.find(act => act.perspective === b)?.perspectiveOrder || 999;
+                return orderA - orderB;
+            });
+        }
+
+        function renderSidebar() {
+            const uniquePerspectives = getSortedPerspectives();
+            const sidebarContainer = document.querySelector('.filter-tabs');
+            
+            let html = `
+                <button class="filter-tab ${currentFilter === 'all' ? 'active' : ''}" onclick="filterData('all')">
+                    <i class="bi bi-grid-fill"></i> <span>Semua</span>
+                </button>
+            `;
+
+            uniquePerspectives.forEach(p => {
+                const icon = getPerspectiveIcon(p);
+                
+                html += `
+                    <button class="filter-tab ${currentFilter === p ? 'active' : ''}" onclick="filterData('${p}')">
+                        <i class="bi ${icon}"></i> <span>${p.charAt(0).toUpperCase() + p.slice(1)}</span>
+                    </button>
+                `;
+            });
+
+            sidebarContainer.innerHTML = html;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const filteredActivities = currentFilter === 'all' 
+                ? activities 
+                : activities.filter(a => a.perspective === currentFilter);
+            
+            if (filteredActivities.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #64748b;">
+                            <i class="bi bi-clipboard-x" style="font-size: 2.5rem; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+                            <div style="font-weight: 500;">Belum ada data aktivitas</div>
+                            <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.8;">Silakan tambah aktivitas baru atau muat data dari server.</div>
+                        </td>
+                    </tr>
+                `;
+                updateSummaryStats();
+                renderChart();
+                renderStatusChart();
+                return;
+            }
+
+            // Group activities by perspective then strategy
+            const groupedByPerspective = {};
+            filteredActivities.forEach(a => {
+                if (!groupedByPerspective[a.perspective]) {
+                    groupedByPerspective[a.perspective] = {};
+                }
+                if (!groupedByPerspective[a.perspective][a.strategy]) {
+                    groupedByPerspective[a.perspective][a.strategy] = [];
+                }
+                groupedByPerspective[a.perspective][a.strategy].push(a);
+            });
+            
+            let html = '';
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            const sortedPerspectives = Object.keys(groupedByPerspective).sort((a, b) => {
+                const orderA = activities.find(act => act.perspective === a)?.perspectiveOrder || 999;
+                const orderB = activities.find(act => act.perspective === b)?.perspectiveOrder || 999;
+                return orderA - orderB;
+            });
+
+            sortedPerspectives.forEach(perspective => {
+                const strategies = groupedByPerspective[perspective];
+                // Calculate total rows for this perspective
+                let perspectiveRowspan = 0;
+                Object.values(strategies).forEach(acts => perspectiveRowspan += acts.length);
+                
+                let isFirstPerspectiveRow = true;
+
+                Object.entries(strategies).forEach(([strategy, activities]) => {
+                    const strategyRowspan = activities.length;
+                    
+                    activities.forEach((a, index) => {
+                        // Hitung progress planning
+                        let planCount = 0;
+                        let actCount = 0;
+                        let missedCount = 0;
+                        a.timeline.forEach(t => {
+                            if (t === 'plan') planCount++;
+                            if (t === 'act') actCount++;
+                            if (t === 'missed') missedCount++;
+                        });
+                        
+                        // Rumus: (Hijau + Merah) / (Hijau + Kuning) * 100%
+                        let progress = 0;
+                        const totalPlan = planCount + actCount;
+                        if (totalPlan > 0) progress = Math.round(((actCount + missedCount) / totalPlan) * 100);
+                        if (progress > 100) progress = 100;
+
+                        html += `
+                            <tr oncontextmenu="showContextMenu(event, ${a.id}, 'activity')" style="cursor: context-menu;">
+                                ${isFirstPerspectiveRow ? `<td class="perspective-cell" rowspan="${perspectiveRowspan}" style="vertical-align: middle; border-right: 2px solid var(--border);">${perspective.toUpperCase()}</td>` : ''}
+                                ${index === 0 ? `<td class="target-cell" rowspan="${strategyRowspan}" style="vertical-align: middle; border-right: 2px solid var(--border);">${a.target}</td>` : ''}
+                                ${index === 0 ? `<td class="strategy-cell" rowspan="${strategyRowspan}" style="vertical-align: middle; border-right: 2px solid var(--border);">${strategy}</td>` : ''}
+                                <td class="activity-cell">${a.activity}</td>
+                                <td style="text-align: center;"><span class="pic-badge">${a.pic}</span></td>
+                                <td>
+                                    <div class="timeline-grid">
+                                        ${a.timeline.map((s,i) => `
+                                            <div class="month-cell ${s}" onclick="toggleStatus(${a.id},${i})" title="${months[i]}"></div>
+                                        `).join('')}
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; margin-bottom: 2px; padding: 0 2px;">
+                                        <span style="font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Progress</span>
+                                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--primary);">${progress}%</span>
+                                    </div>
+                                    <div style="width: 100%; background: #f1f5f9; height: 4px; border-radius: 2px; overflow: hidden; border: 1px solid #e2e8f0;">
+                                        <div style="width: ${progress}%; background: linear-gradient(90deg, var(--primary), var(--info)); height: 100%; border-radius: 2px; transition: width 0.5s ease;"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        isFirstPerspectiveRow = false;
+                    });
+                });
+            });
+            
+            tbody.innerHTML = html;
+            updateSummaryStats();
+            renderChart();
+            renderStatusChart();
+        }
+
+        function renderAnalysisTable() {
+            const tbody = document.getElementById('analysisTableBody');
+            const paginationContainer = document.getElementById('analysisPagination');
+
+            // Filter data by due date (current and previous month)
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth(); // 0-11
+
+            const filteredAnalysisData = analysisData.filter(item => {
+                // Filter by perspective
+                if (currentFilter !== 'all' && item.perspective !== currentFilter) {
+                    return false;
+                }
+
+                if (!item.dueDate) {
+                    return false; // Sembunyikan item tanpa Due Date
+                }
+                const dueDate = new Date(item.dueDate);
+                const dueYear = dueDate.getFullYear();
+                const dueMonth = dueDate.getMonth();
+
+                // Cek apakah di bulan berjalan
+                if (dueYear === currentYear && dueMonth === currentMonth) {
+                    return true;
+                }
+
+                // Cek apakah di bulan sebelumnya (handle pergantian tahun)
+                const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                const prevMonth = prevMonthDate.getMonth();
+                const prevMonthYear = prevMonthDate.getFullYear();
+                
+                return dueYear === prevMonthYear && dueMonth === prevMonth;
+            });
+
+            if (filteredAnalysisData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 30px; color: #64748b;"> <!-- Colspan adjusted -->
+                            <i class="bi bi-clipboard-data" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+                            <div>Belum ada data analisa untuk bulan ini atau bulan sebelumnya.</div>
+                        </td>
+                    </tr>
+                `;
+                if (paginationContainer) paginationContainer.innerHTML = '';
+                return;
+            }
+
+            // Sort data to group similar items together for merging
+            filteredAnalysisData.sort((a, b) => {
+                if (a.perspective < b.perspective) return -1;
+                if (a.perspective > b.perspective) return 1;
+                if (a.problem < b.problem) return -1;
+                if (a.problem > b.problem) return 1;
+                return 0;
+            });
+
+            // Pagination Logic
+            const totalPages = Math.ceil(filteredAnalysisData.length / analysisRowsPerPage);
+            if (currentAnalysisPage > totalPages) currentAnalysisPage = totalPages;
+            if (currentAnalysisPage < 1) currentAnalysisPage = 1;
+
+            const start = (currentAnalysisPage - 1) * analysisRowsPerPage;
+            const end = start + analysisRowsPerPage;
+            const paginatedData = filteredAnalysisData.slice(start, end);
+
+            // Pre-calculate rowspans for the current page
+            const perspectiveSpans = {};
+            const problemSpans = {};
+            for (let i = 0; i < paginatedData.length; i++) {
+                const currentItem = paginatedData[i];
+                // Perspective span
+                if (!perspectiveSpans[currentItem.perspective]) {
+                    perspectiveSpans[currentItem.perspective] = { count: 0, start: i };
+                }
+                perspectiveSpans[currentItem.perspective].count++;
+                // Problem span
+                const problemKey = `${currentItem.perspective}-${currentItem.problem}`;
+                if (!problemSpans[problemKey]) {
+                    problemSpans[problemKey] = { count: 0, start: i };
+                }
+                problemSpans[problemKey].count++;
+            }
+
+            let html = '';
+            paginatedData.forEach((item, index) => {
+                let beforeContent = item.before || '-';
+                if (item.before && (item.before.startsWith('http') || item.before.startsWith('data:'))) {
+                    beforeContent = `<img src="${item.before}" alt="Before" style="max-width: 80px; max-height: 50px; object-fit: cover; cursor: pointer; border-radius: 4px;" onclick="openImageViewer(${item.id}, 'before')">`;
+                }
+ 
+                let afterContent = item.after || '-';
+                if (item.after && (item.after.startsWith('http') || item.after.startsWith('data:'))) {
+                    afterContent = `<img src="${item.after}" alt="After" style="max-width: 80px; max-height: 50px; object-fit: cover; cursor: pointer; border-radius: 4px;" onclick="openImageViewer(${item.id}, 'after')">`;
+                }
+
+                html += `<tr oncontextmenu="showContextMenu(event, ${item.id}, 'analysis')" style="cursor: context-menu;">`;
+
+                const problemKey = `${item.perspective}-${item.problem}`;
+
+                if (perspectiveSpans[item.perspective] && perspectiveSpans[item.perspective].start === index) {
+                    html += `<td class="perspective-cell" rowspan="${perspectiveSpans[item.perspective].count}" style="vertical-align: middle;">${item.perspective}</td>`;
+                }
+                
+                html += `<td style="text-align:center; display: none;">${item.date || '-'}</td>`;
+                
+                if (problemSpans[problemKey] && problemSpans[problemKey].start === index) {
+                    html += `<td rowspan="${problemSpans[problemKey].count}" style="vertical-align: middle; background: linear-gradient(135deg, #f0f9ff, #e0f2fe);">${item.problem}</td>`;
+                }
+                
+                html += `<td>${item.analysis}</td>
+                    <td>${item.improvement}</td>
+                    <td style="text-align:center;">${beforeContent}</td>
+                    <td style="text-align:center;">${afterContent}</td>
+                    <td style="text-align:center;"><span class="pic-badge">${item.pic}</span></td>
+                    <td style="text-align:center;">${item.dueDate}</td>
+                    <td style="text-align:center;"><div class="progress" style="height: 20px;"><div class="progress-bar ${item.progress == 100 ? 'bg-success' : 'bg-primary'}" role="progressbar" style="width: ${item.progress}%" aria-valuenow="${item.progress}" aria-valuemin="0" aria-valuemax="100">${item.progress}%</div></div></td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+
+            // Render Pagination Controls
+            if (paginationContainer) {
+                if (totalPages > 1) {
+                    paginationContainer.innerHTML = `
+                        <span style="font-size: 0.9rem; color: #64748b; margin-right: 10px;">
+                            Halaman ${currentAnalysisPage} dari ${totalPages}
+                        </span>
+                        <button class="btn btn-period" style="padding: 5px 10px;" onclick="changeAnalysisPage(${currentAnalysisPage - 1})" ${currentAnalysisPage === 1 ? 'disabled' : ''}>
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-period" style="padding: 5px 10px;" onclick="changeAnalysisPage(${currentAnalysisPage + 1})" ${currentAnalysisPage === totalPages ? 'disabled' : ''}>
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    `;
+                } else {
+                    paginationContainer.innerHTML = '';
+                }
+            }
+        }
+
+        function changeAnalysisPage(page) {
+            currentAnalysisPage = page;
+            renderAnalysisTable();
+        }
+
+        function toggleStatus(id, month) {
+            if (!currentUser) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Dibatasi',
+                    text: 'Silakan login untuk mengubah status timeline.',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                return;
+            }
+            const a = activities.find(x => x.id === id);
+            const currentStatus = a.timeline[month];
+
+            // Logika: Plan <-> Act, dan Kosong <-> Missed (merah)
+            if (currentStatus === 'plan') {
+                a.timeline[month] = 'act';
+            } else if (currentStatus === 'act') {
+                a.timeline[month] = 'plan';
+            } else if (currentStatus === 'missed') {
+                a.timeline[month] = ''; // Kembali ke kosong
+            } else { // Sebelumnya kosong
+                a.timeline[month] = 'missed'; // Jadi merah
+            }
+            isActivitiesDirty = true;
+            renderTable();
+        }
+
+        function setupModalTimeline() {
+            const grid = document.getElementById('modalTimeline');
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            grid.innerHTML = modalTimeline.map((s,i) => 
+                `<div class="month-cell ${s}" onclick="toggleModal(${i})" title="${months[i]}"></div>`
+            ).join('');
+        }
+
+        function toggleModal(i) {
+            const statuses = ['', 'plan', 'act', 'missed'];
+            const idx = statuses.indexOf(modalTimeline[i]);
+            modalTimeline[i] = statuses[(idx + 1) % statuses.length];
+            setupModalTimeline();
+        }
+
+        function addFromRow(id) {
+            if (!currentUser) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Dibatasi',
+                    text: 'Silakan login terlebih dahulu untuk menambah aktivitas.',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            const source = activities.find(a => a.id === id);
+            if (!source) return;
+
+            currentEdit = null;
+            modalTimeline = new Array(12).fill('');
+            document.getElementById('modalTitle').textContent = 'Tambah Aktivitas Baru';
+            
+            // Pre-fill context from source row
+            document.getElementById('perspectiveOrder').value = source.perspectiveOrder || '';
+            document.getElementById('perspective').value = source.perspective;
+            document.getElementById('target').value = source.target;
+            document.getElementById('strategy').value = source.strategy;
+            document.getElementById('activity').value = '';
+            document.getElementById('pic').value = '';
+            document.getElementById('sheetLink').value = '';
+            
+            setupModalTimeline();
+            updateAllDatalists();
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function openModal() {
+            if (!currentUser) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Dibatasi',
+                    text: 'Silakan login terlebih dahulu untuk menambah aktivitas.',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            currentEdit = null;
+            modalTimeline = new Array(12).fill('');
+            document.getElementById('modalTitle').textContent = 'Tambah Aktivitas';
+            document.getElementById('perspectiveOrder').value = '';
+            document.getElementById('perspective').value = '';
+            document.getElementById('target').value = '';
+            document.getElementById('strategy').value = '';
+            document.getElementById('activity').value = '';
+            document.getElementById('pic').value = '';
+            document.getElementById('sheetLink').value = '';
+            setupModalTimeline();
+            updateAllDatalists();
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function edit(id) {
+            if (!currentUser) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Dibatasi',
+                    text: 'Silakan login terlebih dahulu untuk mengedit aktivitas.',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            currentEdit = activities.find(a => a.id === id);
+            modalTimeline = [...currentEdit.timeline];
+            document.getElementById('modalTitle').textContent = 'Edit Aktivitas';
+            document.getElementById('perspectiveOrder').value = currentEdit.perspectiveOrder || '';
+            document.getElementById('perspective').value = currentEdit.perspective;
+            document.getElementById('target').value = currentEdit.target;
+            document.getElementById('strategy').value = currentEdit.strategy;
+            document.getElementById('activity').value = currentEdit.activity;
+            document.getElementById('pic').value = currentEdit.pic;
+            document.getElementById('sheetLink').value = currentEdit.sheetLink || '';
+            setupModalTimeline();
+            updateAllDatalists();
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        // --- IMAGE VIEWER LOGIC ---
+        let imgViewer = { scale: 1, rotation: 0, panning: false, startX: 0, startY: 0, cssX: 0, cssY: 0 };
+        let currentViewerItem = null;
+        let currentViewerType = null; // 'before' or 'after'
+
+        function openImageViewer(id, type) {
+            const item = analysisData.find(a => a.id === id);
+            if (!item) return;
+            
+            currentViewerItem = item;
+            currentViewerType = type;
+            
+            const url = type === 'before' ? item.before : item.after;
+            if (url) showImagePopup(url, type);
+        }
+
+        function navigateImage(direction) {
+            if (!currentViewerItem) return;
+            
+            let nextType = null;
+            if (currentViewerType === 'before' && direction === 1) nextType = 'after';
+            else if (currentViewerType === 'after' && direction === -1) nextType = 'before';
+            
+            if (nextType) {
+                const nextUrl = nextType === 'before' ? currentViewerItem.before : currentViewerItem.after;
+                if (nextUrl && (nextUrl.startsWith('http') || nextUrl.startsWith('data:'))) {
+                    currentViewerType = nextType;
+                    showImagePopup(nextUrl, nextType);
+                }
+            }
+        }
+
+        function showImagePopup(imageUrl, labelText) {
+            const modal = document.getElementById('imageViewerModal');
+            const modalImg = document.getElementById("fullImage");
+            const viewerLabel = document.getElementById("viewerLabel");
+            
+            modal.style.display = "block";
+            modalImg.src = imageUrl;
+            if (viewerLabel) viewerLabel.textContent = labelText;
+            
+            // Reset state
+            resetZoom();
+        }
+
+        function closeImageViewer() {
+            document.getElementById('imageViewerModal').style.display = "none";
+            currentViewerItem = null;
+            currentViewerType = null;
+        }
+
+        function zoomImage(delta) {
+            imgViewer.scale += delta;
+            if (imgViewer.scale < 0.1) imgViewer.scale = 0.1;
+            updateImageTransform();
+        }
+
+        function rotateImage() {
+            imgViewer.rotation = (imgViewer.rotation + 90) % 360;
+            updateImageTransform();
+        }
+
+        function resetZoom() {
+            imgViewer.scale = 1;
+            imgViewer.rotation = 0;
+            imgViewer.cssX = 0;
+            imgViewer.cssY = 0;
+            updateImageTransform();
+        }
+
+        function updateImageTransform() {
+            const img = document.getElementById("fullImage");
+            img.style.transform = `translate(calc(-50% + ${imgViewer.cssX}px), calc(-50% + ${imgViewer.cssY}px)) scale(${imgViewer.scale}) rotate(${imgViewer.rotation}deg)`;
+        }
+
+        // Setup Image Viewer Events
+        const viewerModal = document.getElementById('imageViewerModal');
+        const fullImage = document.getElementById("fullImage");
+
+        if (viewerModal) {
+            viewerModal.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                zoomImage(e.deltaY > 0 ? -0.1 : 0.1);
+            });
+            viewerModal.addEventListener('click', (e) => {
+                if (e.target === viewerModal) closeImageViewer();
+            });
+        }
+
+        // Close viewer on Escape key & Navigation
+        document.addEventListener('keydown', (e) => {
+            if (viewerModal && viewerModal.style.display === 'block') {
+                if (e.key === 'Escape') {
+                    closeImageViewer();
+                } else if (e.key === 'ArrowLeft') {
+                    navigateImage(-1);
+                } else if (e.key === 'ArrowRight') {
+                    navigateImage(1);
+                }
+            }
+        });
+
+        if (fullImage) {
+            fullImage.onmousedown = (e) => { e.preventDefault(); imgViewer.panning = true; imgViewer.startX = e.clientX - imgViewer.cssX; imgViewer.startY = e.clientY - imgViewer.cssY; fullImage.style.cursor = 'grabbing'; };
+            fullImage.onmouseup = () => { imgViewer.panning = false; fullImage.style.cursor = 'grab'; };
+            fullImage.onmouseleave = () => { imgViewer.panning = false; fullImage.style.cursor = 'grab'; };
+            fullImage.onmousemove = (e) => {
+                if (!imgViewer.panning) return;
+                e.preventDefault();
+                imgViewer.cssX = e.clientX - imgViewer.startX;
+                imgViewer.cssY = e.clientY - imgViewer.startY;
+                updateImageTransform();
+            };
+        }
+
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            const file = input.files && input.files[0];
+            
+            if (file) {
+                // Validasi ukuran file (maks 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    Swal.fire({ icon: 'warning', title: 'File Terlalu Besar', text: 'Ukuran file maksimal adalah 2MB.', confirmButtonColor: '#ef4444' });
+                    input.value = ''; // Reset input
+                    preview.style.display = 'none';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function openAnalysisModalFromActivity(activityId) {
+            if (!currentUser) {
+                Swal.fire({ icon: 'warning', title: 'Akses Dibatasi', text: 'Silakan login terlebih dahulu.', confirmButtonColor: '#3b82f6' });
+                return;
+            }
+
+            const activity = activities.find(a => a.id === activityId);
+            if (!activity) return;
+
+            // Buka dan reset modal terlebih dahulu
+            openAnalysisModal();
+
+            // Isi field berdasarkan data aktivitas
+            document.getElementById('anaPerspective').value = activity.perspective;
+            document.getElementById('anaProblem').value = `Terkait KPI: "${activity.activity}"`;
+        }
+
+        function openAnalysisModal() {
+            if (!currentUser) {
+                Swal.fire({ icon: 'warning', title: 'Akses Dibatasi', text: 'Silakan login terlebih dahulu.', confirmButtonColor: '#3b82f6' });
+                return;
+            }
+            currentAnalysisEdit = null;
+            document.getElementById('analysisModalTitle').textContent = 'Tambah Analisa & Perbaikan';
+            // Reset form
+            document.getElementById('anaPerspective').value = '';
+            document.getElementById('anaProblem').value = '';
+            document.getElementById('anaAnalysis').value = '';
+            document.getElementById('anaImprovement').value = '';
+            document.getElementById('anaPic').value = '';
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            document.getElementById('anaDate').value = `${year}-${month}-${day}`;
+            document.getElementById('anaDueDate').value = '';
+            document.getElementById('anaProgress').value = '';
+            // Reset image fields
+            document.getElementById('anaBefore').value = null;
+            document.getElementById('anaAfter').value = null;
+            document.getElementById('anaBeforePreview').style.display = 'none';
+            document.getElementById('anaAfterPreview').style.display = 'none';
+            document.getElementById('anaBeforeUrl').value = '';
+            document.getElementById('anaAfterUrl').value = '';
+            updateAllDatalists();
+            document.getElementById('analysisModal').classList.add('show');
+        }
+
+        function closeAnalysisModal() {
+            document.getElementById('analysisModal').classList.remove('show');
+        }
+
+        function previewLogo(input) {
+            const preview = document.getElementById('logoPreview');
+            const file = input.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                    Swal.fire('Ukuran File Terlalu Besar', 'Ukuran logo maksimal adalah 2MB.', 'warning');
+                    input.value = ''; // Reset file input
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function saveAnalysis() {
+            if (!currentUser) {
+                Swal.fire({ icon: 'error', title: 'Akses Ditolak', text: 'Anda harus login untuk menyimpan data.' });
+                closeAnalysisModal();
+                return;
+            }
+
+            const saveBtn = document.querySelector('#analysisModal .btn-save');
+            const originalBtnText = saveBtn.innerHTML;
+
+            const beforeFile = document.getElementById('anaBefore').files[0];
+            const afterFile = document.getElementById('anaAfter').files[0];
+
+            let beforeData = document.getElementById('anaBeforeUrl').value;
+            let afterData = document.getElementById('anaAfterUrl').value;
+
+            // Validation
+            const perspective = document.getElementById('anaPerspective').value;
+            const problem = document.getElementById('anaProblem').value;
+            if (!perspective || !problem) {
+                Swal.fire({ icon: 'warning', title: 'Data Belum Lengkap', text: 'Perspektif dan Masalah wajib diisi!' });
+                return;
+            }
+
+            // Validasi input perspektif harus dari dropdown
+            const perspectiveList = document.getElementById('perspectiveList');
+            const validPerspectives = Array.from(perspectiveList.options).map(opt => opt.value);
+            if (!validPerspectives.includes(perspective)) {
+                Swal.fire({ icon: 'warning', title: 'Perspektif Tidak Valid', text: 'Silakan pilih perspektif dari daftar yang tersedia.' });
+                return;
+            }
+
+            saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...';
+            saveBtn.disabled = true;
+
+            try {
+                if (beforeFile) beforeData = await getBase64(beforeFile);
+                if (afterFile) afterData = await getBase64(afterFile);
+            } catch (error) {
+                console.error("Error processing image:", error);
+                Swal.fire('Error', 'Gagal memproses gambar.', 'error');
+                saveBtn.innerHTML = originalBtnText;
+                saveBtn.disabled = false;
+                return;
+            }
+
+            const data = {
+                perspective: perspective,
+                problem: problem,
+                analysis: document.getElementById('anaAnalysis').value,
+                improvement: document.getElementById('anaImprovement').value,
+                date: document.getElementById('anaDate').value,
+                before: beforeData,
+                after: afterData,
+                pic: document.getElementById('anaPic').value,
+                dueDate: document.getElementById('anaDueDate').value,
+                progress: document.getElementById('anaProgress').value || 0
+            };
+
+            if (currentAnalysisEdit) {
+                Object.assign(currentAnalysisEdit, data);
+            } else {
+                data.id = Date.now();
+                analysisData.push(data);
+            }
+            isAnalysisDirty = true;
+            saveBtn.innerHTML = originalBtnText;
+            saveBtn.disabled = false;
+            closeAnalysisModal();
+            renderAnalysisTable();
+        }
+
+        function editAnalysis(id) {
+            if (!currentUser) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Dibatasi',
+                    text: 'Silakan login terlebih dahulu untuk mengedit data.',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+
+            currentAnalysisEdit = analysisData.find(a => a.id === id);
+            if(!currentAnalysisEdit) return;
+            document.getElementById('analysisModalTitle').textContent = 'Edit Analisa';
+            document.getElementById('anaPerspective').value = currentAnalysisEdit.perspective;
+            document.getElementById('anaProblem').value = currentAnalysisEdit.problem;
+            document.getElementById('anaAnalysis').value = currentAnalysisEdit.analysis;
+            document.getElementById('anaImprovement').value = currentAnalysisEdit.improvement;
+            document.getElementById('anaDate').value = currentAnalysisEdit.date || '';
+            document.getElementById('anaPic').value = currentAnalysisEdit.pic;
+            document.getElementById('anaDueDate').value = currentAnalysisEdit.dueDate;
+            document.getElementById('anaProgress').value = currentAnalysisEdit.progress;
+            // Handle image previews and hidden URLs
+            document.getElementById('anaBefore').value = null;
+            document.getElementById('anaAfter').value = null;
+            document.getElementById('anaBeforeUrl').value = currentAnalysisEdit.before || '';
+            document.getElementById('anaAfterUrl').value = currentAnalysisEdit.after || '';
+            
+            const beforePreview = document.getElementById('anaBeforePreview');
+            beforePreview.src = currentAnalysisEdit.before || '';
+            beforePreview.style.display = currentAnalysisEdit.before ? 'block' : 'none';
+            
+            const afterPreview = document.getElementById('anaAfterPreview');
+            afterPreview.src = currentAnalysisEdit.after || '';
+            afterPreview.style.display = currentAnalysisEdit.after ? 'block' : 'none';
+
+            updateAllDatalists();
+            document.getElementById('analysisModal').classList.add('show');
+        }
+
+        function deleteAnalysis(id) {
+            if (!currentUser) return;
+            Swal.fire({
+                title: 'Hapus Analisa?', 
+                text: "Data dan gambar ilustrasi akan dihapus permanen dari Drive!", 
+                icon: 'warning', 
+                showCancelButton: true, 
+                confirmButtonText: 'Ya, Hapus', 
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#ef4444'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const item = analysisData.find(a => a.id === id);
+                    if (item && typeof google !== 'undefined' && google.script) {
+                        if (item.before && item.before.includes('drive.google.com')) {
+                            google.script.run.withFailureHandler(e => console.log(e)).deleteDriveFile(item.before);
+                        }
+                        if (item.after && item.after.includes('drive.google.com')) {
+                            google.script.run.withFailureHandler(e => console.log(e)).deleteDriveFile(item.after);
+                        }
+                    }
+
+                    analysisData = analysisData.filter(a => a.id !== id);
+                    isAnalysisDirty = true;
+                    renderAnalysisTable();
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Analisa berhasil dihapus', showConfirmButton: false, timer: 2000 });
+                }
+            });
+        }
+
+        function save() {
+            const pOrder = parseInt(document.getElementById('perspectiveOrder').value) || 999;
+            const pName = document.getElementById('perspective').value;
+            const data = {
+                perspective: pName,
+                perspectiveOrder: pOrder,
+                target: document.getElementById('target').value,
+                strategy: document.getElementById('strategy').value,
+                activity: document.getElementById('activity').value,
+                pic: document.getElementById('pic').value,
+                sheetLink: document.getElementById('sheetLink').value,
+                timeline: [...modalTimeline]
+            };
+
+            if (!data.strategy || !data.activity || !data.pic) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Data Belum Lengkap',
+                    text: 'Lengkapi semua field yang wajib diisi!'
+                });
+                return;
+            }
+
+            if (currentEdit) {
+                Object.assign(currentEdit, data);
+            } else {
+                data.id = Math.max(...activities.map(a => a.id)) + 1;
+                activities.push(data);
+            }
+
+            // Update consistency: Update all activities with same perspective to have same order
+            activities.forEach(a => {
+                if (a.perspective === pName) {
+                    a.perspectiveOrder = pOrder;
+                }
+            });
+
+            isActivitiesDirty = true;
+            closeModal();
+            renderTable();
+            renderSidebar();
+        }
+
+        function saveActivitiesToSheet() {
+            if (!currentUser) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Dibatasi',
+                    text: 'Silakan login terlebih dahulu untuk menyimpan data aktivitas.',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            if (activities.length === 0) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: 'Tidak ada aktivitas untuk disimpan',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                return;
+            }
+
+            const btn = document.querySelector('.btn-save-activities');
+            const originalText = btn.innerHTML;
+            const kpiPeriod = document.getElementById('headerPeriod').textContent;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 5px;"></span> Menyimpan...';
+            btn.disabled = true;
+
+            if (typeof google !== 'undefined' && google.script) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        if (response.success) {
+                            isActivitiesDirty = false;
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Aktivitas berhasil disimpan',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal Menyimpan',
+                                text: 'Detail: ' + response.error
+                            });
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error Koneksi',
+                            text: error.message
+                        });
+                    })
+                    .saveKPIData(activities, kpiPeriod);
+            } else {
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Mode Offline',
+                        text: 'Fitur ini hanya berjalan di lingkungan Google Apps Script.'
+                    });
+                }, 1000);
+            }
+        }
+
+        function saveAnalysisToSheet() {
+            if (!currentUser) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Dibatasi',
+                    text: 'Silakan login terlebih dahulu untuk menyimpan data analisa.',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            if (analysisData.length === 0) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: 'Tidak ada analisa untuk disimpan',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                return;
+            }
+
+            const btn = document.querySelector('.btn-save-analysis');
+            const originalText = btn.innerHTML;
+            const kpiPeriod = document.getElementById('headerPeriod').textContent;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 5px;"></span> Menyimpan...';
+            btn.disabled = true;
+
+            if (typeof google !== 'undefined' && google.script) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        if (response.success) {
+                        isAnalysisDirty = false; // Tandai data sudah bersih
+                        // BARU: Perbarui data lokal dengan data dari server yang berisi URL Drive baru
+                        analysisData = response.data || analysisData;
+                        renderAnalysisTable(); // Render ulang tabel dengan URL gambar yang benar
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Analisa berhasil disimpan',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal Menyimpan',
+                                text: 'Detail: ' + response.error
+                            });
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error Koneksi',
+                            text: error.message
+                        });
+                    })
+                    .saveAnalysisData(analysisData, kpiPeriod);
+            } else {
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Mode Offline',
+                        text: 'Fitur ini hanya berjalan di lingkungan Google Apps Script.'
+                    });
+                }, 1000);
+            }
+        }
+
+        function loadFromSheet() {
+            const kpiPeriod = document.getElementById('headerPeriod').textContent;
+            
+            // Reset tombol load ke status normal
+            const loadBtn = document.querySelector('.btn-load');
+            loadBtn.classList.remove('btn-pulse');
+            loadBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
+            loadBtn.title = "Muat Ulang Data";
+            
+            // Tampilkan loading
+            let timerInterval;
+            Swal.fire({
+                title: 'Memuat Data...',
+                html: 'Mengambil data periode <b>' + kpiPeriod + '</b> dari Google Sheet.',
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            if (typeof google !== 'undefined' && google.script) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        if (response.success) {
+                    // NEW: Apply company settings from server
+                    if (response.settings) {
+                        applyCompanySettings(response.settings);
+                    }
+
+                            if ((response.activities && response.activities.length > 0) || (response.analysis && response.analysis.length > 0)) {
+                                activities = response.activities || [];
+                                analysisData = response.analysis || [];
+                                isActivitiesDirty = false;
+                                isAnalysisDirty = false;
+                                currentAnalysisPage = 1;
+                                renderTable();
+                                renderAnalysisTable();
+                                renderSidebar();
+                                updateSummaryStats();
+                                renderChart();
+                                renderStatusChart();
+                                updateAllDatalists();
+                                updateStatusIndicator('saved', 'Data loaded successfully at ' + new Date().toLocaleTimeString());
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: 'Data berhasil dimuat',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                });
+                            } else {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'info',
+                                    title: 'Data kosong untuk periode ' + kpiPeriod,
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                });
+                            }
+                        } else {
+                            Swal.fire('Error', 'Gagal memuat data: ' + response.error, 'error');
+                            updateStatusIndicator('error', 'Failed to load data');
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        Swal.fire('Error Koneksi', error.message, 'error');
+                        updateStatusIndicator('error', 'Connection error');
+                    })
+                    .getAllData(kpiPeriod);
+            }
+        }
+
+        function del(id) {
+            if (!currentUser) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Dibatasi',
+                    text: 'Silakan login terlebih dahulu untuk menghapus aktivitas.',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            Swal.fire({
+                title: 'Hapus Aktivitas?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    activities = activities.filter(a => a.id !== id);
+                    isActivitiesDirty = true;
+                    renderTable();
+                    renderSidebar();
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Aktivitas berhasil dihapus',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
+            });
+        }
+
+        function filterData(filter) {
+            currentFilter = filter;
+            renderSidebar();
+            renderTable();
+            renderAnalysisTable();
+            
+            const titleEl = document.getElementById('dashboardTitle');
+            const descEl = document.getElementById('dashboardDesc');
+            
+            // Reset animasi
+            titleEl.classList.remove('fade-in');
+            void titleEl.offsetWidth; // Trigger reflow
+            
+            const descriptions = {
+                'all': 'Ringkasan dan detail Key Performance Indicators.',
+                'keuangan': 'Indikator kinerja terkait kesehatan finansial dan efisiensi biaya.',
+                'pelanggan': 'Metrik kepuasan, retensi, dan pertumbuhan basis pelanggan.',
+                'proses': 'Efisiensi operasional dan keunggulan proses internal bisnis.',
+                'pertumbuhan': 'Pengembangan kapabilitas SDM, teknologi, dan iklim organisasi.'
+            };
+
+            if (filter === 'all') {
+                titleEl.innerHTML = '<i class="bi bi-grid-fill"></i> OVERALL PERSPEKTIF';
+            } else {
+                const icon = getPerspectiveIcon(filter);
+                titleEl.innerHTML = `<i class="bi ${icon}"></i> ${filter.toUpperCase()}`;
+            }
+            
+            descEl.textContent = descriptions[filter] || 'Detail indikator kinerja untuk perspektif ini.';
+            
+            // Tambahkan kelas animasi
+            titleEl.classList.add('fade-in');
+        }
+
+        function updateSummaryStats() {
+            const filteredActivities = currentFilter === 'all' 
+                ? activities 
+                : activities.filter(a => a.perspective === currentFilter);
+            
+            // Hitung Total Perspektif
+            const uniquePerspectives = new Set(filteredActivities.map(a => a.perspective));
+            const totalPerspectives = uniquePerspectives.size;
+            
+            const totalActivities = filteredActivities.length;
+            
+            let totalProgressSum = 0;
+            let completedCount = 0;
+            let onScheduleCount = 0;
+            let outScheduleCount = 0;
+
+            filteredActivities.forEach(a => {
+                let planCount = 0;
+                let actCount = 0;
+                let missedCount = 0;
+                
+                a.timeline.forEach(status => {
+                    if (status === 'plan') planCount++;
+                    if (status === 'act') actCount++;
+                    if (status === 'missed') missedCount++;
+                });
+                
+                let progress = 0;
+                const totalPlanItem = planCount + actCount;
+                if (totalPlanItem > 0) progress = Math.round(((actCount + missedCount) / totalPlanItem) * 100);
+                if (progress > 100) progress = 100;
+                
+                totalProgressSum += progress;
+
+                if (progress === 100) {
+                    completedCount++;
+                    if (missedCount === 0) onScheduleCount++;
+                    else outScheduleCount++;
+                }
+            });
+            
+            const overallProgress = totalActivities > 0 ? Math.round(totalProgressSum / totalActivities) : 0;
+
+            document.getElementById('totalPerspectives').textContent = totalPerspectives;
+            document.getElementById('totalActivities').textContent = totalActivities;
+            document.getElementById('completedActivities').textContent = completedCount;
+            document.getElementById('overallProgress').textContent = overallProgress + '%';
+            document.getElementById('onScheduleCount').textContent = onScheduleCount;
+            document.getElementById('outScheduleCount').textContent = outScheduleCount;
+        }
+
+        function wrapLabel(str, maxChars) {
+            const words = String(str || '').split(' ');
+            const lines = [];
+            let currentLine = words[0];
+            
+            for (let i = 1; i < words.length; i++) {
+                if ((currentLine + " " + words[i]).length <= maxChars) {
+                    currentLine += " " + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('perspectiveChart').getContext('2d');
+            
+            let labels = [];
+            let progressData = [];
+            let chartTitle = '';
+
+            if (currentFilter === 'all') {
+                // Group by perspective and calculate average progress (sorted)
+                const perspectives = getSortedPerspectives();
+                progressData = perspectives.map(p => {
+                    const acts = activities.filter(a => a.perspective === p);
+                    if (acts.length === 0) return 0;
+                    
+                    let totalP = 0;
+                    acts.forEach(a => {
+                        let planCount = 0;
+                        let actCount = 0;
+                        let missedCount = 0;
+                        a.timeline.forEach(t => {
+                            if (t === 'plan') planCount++;
+                            if (t === 'act') actCount++;
+                            if (t === 'missed') missedCount++;
+                        });
+                        
+                        let prog = 0;
+                        const totalPlan = planCount + actCount;
+                        if (totalPlan > 0) prog = ((actCount + missedCount) / totalPlan) * 100;
+                        if (prog > 100) prog = 100;
+                        totalP += prog;
+                    });
+                    
+                    return Math.round(totalP / acts.length);
+                });
+                
+                labels = perspectives.map(p => wrapLabel(p.charAt(0).toUpperCase() + p.slice(1), 15));
+                chartTitle = 'Progress per Perspektif';
+            } else {
+                // Show individual activities for the selected perspective
+                const filteredActs = activities.filter(a => a.perspective === currentFilter);
+                
+                labels = filteredActs.map(a => wrapLabel(a.activity, 15));
+                
+                progressData = filteredActs.map(a => {
+                    let planCount = 0;
+                    let actCount = 0;
+                    let missedCount = 0;
+                    a.timeline.forEach(t => {
+                        if (t === 'plan') planCount++;
+                        if (t === 'act') actCount++;
+                        if (t === 'missed') missedCount++;
+                    });
+                    
+                    let prog = 0;
+                    const totalPlan = planCount + actCount;
+                    if (totalPlan > 0) prog = ((actCount + missedCount) / totalPlan) * 100;
+                    if (prog > 100) prog = 100;
+                    return Math.round(prog);
+                });
+                
+                chartTitle = 'Progress Aktivitas - ' + currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1);
+            }
+
+            if (perspectiveChart) {
+                perspectiveChart.destroy();
+            }
+
+            perspectiveChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Progress (%)',
+                        data: progressData,
+                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        borderColor: 'rgba(255, 255, 255, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { 
+                            display: true, 
+                            text: chartTitle, 
+                            font: { size: 16 },
+                            color: 'white'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    if (currentFilter !== 'all') {
+                                        const idx = context[0].dataIndex;
+                                        const acts = activities.filter(a => a.perspective === currentFilter);
+                                        if (acts[idx]) return acts[idx].activity;
+                                    }
+                                    return context[0].label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: v => v + '%', color: 'rgba(255, 255, 255, 0.8)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            border: { display: false }
+                        },
+                        x: {
+                            ticks: { color: 'rgba(255, 255, 255, 0.8)' },
+                            grid: { display: false },
+                            border: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderStatusChart() {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            
+            const filteredActivities = currentFilter === 'all' 
+                ? activities 
+                : activities.filter(a => a.perspective === currentFilter);
+
+            let completed = 0;
+            let onProgress = 0;
+            let missed = 0;
+
+            filteredActivities.forEach(a => {
+                let planCount = 0;
+                let actCount = 0;
+                let missedCount = 0;
+                a.timeline.forEach(t => {
+                    if (t === 'plan') planCount++;
+                    if (t === 'act') actCount++;
+                    if (t === 'missed') missedCount++;
+                });
+                
+                let progress = 0;
+                const totalPlan = planCount + actCount;
+                if (totalPlan > 0) progress = Math.round(((actCount + missedCount) / totalPlan) * 100);
+                if (progress > 100) progress = 100;
+                
+                if (progress === 100) completed++;
+                else if (progress > 0) onProgress++;
+                else missed++;
+            });
+
+            if (statusChart) {
+                statusChart.destroy();
+            }
+            
+            var total = completed + onProgress + missed;
+            var targetPercentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+            var displayedPercentage = 0;
+
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'On Progress', 'Missed'],
+                    datasets: [{
+                        data: [completed, onProgress, missed],
+                        backgroundColor: ['#22c55e', '#3b82f6', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 2000,
+                        onProgress: function(animation) {
+                            displayedPercentage = Math.round(targetPercentage * (animation.currentStep / animation.numSteps));
+                        }
+                    },
+                    plugins: {
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                color: 'white', 
+                                font: { size: 10 },
+                                boxWidth: 8,
+                                padding: 8,
+                                usePointStyle: true
+                            } 
+                        },
+                        title: { display: true, text: 'Progress', color: 'white', font: { size: 16 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let value = context.raw;
+                                    let total = completed + onProgress + missed;
+                                    let percentage = total > 0 ? Math.round((value / total) * 100) + '%' : '0%';
+                                    return `${label}: ${value} Aktivitas (${percentage})`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                },
+                plugins: [{
+                    id: 'centerText',
+                    beforeDraw: function(chart) {
+                        var width = chart.width,
+                            height = chart.height,
+                            ctx = chart.ctx;
+                
+                        ctx.restore();
+                        var fontSize = (height / 100).toFixed(2);
+                        ctx.font = "bold " + fontSize + "em sans-serif";
+                        ctx.textBaseline = "middle";
+                        ctx.fillStyle = "white";
+                        
+                        // Hitung titik tengah berdasarkan area chart (karena legend menggeser chart)
+                        var centerX = width / 2;
+                        var centerY = height / 2;
+                        if (chart.chartArea) {
+                            centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+                            centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+                        }
+                
+                        var text = displayedPercentage + "%";
+                        var textX = Math.round(centerX - (ctx.measureText(text).width / 2));
+                        var textY = centerY;
+                
+                        // Add Glow Effect
+                        ctx.save();
+                        ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
+                        ctx.shadowBlur = 15;
+                        ctx.fillText(text, textX, textY);
+                        ctx.restore();
+                        
+                        // Label Complete
+                        ctx.font = "normal " + (fontSize * 0.4).toFixed(2) + "em sans-serif";
+                        var label = "Complete";
+                        var labelX = Math.round(centerX - (ctx.measureText(label).width / 2));
+                        var labelY = centerY + 20;
+                        ctx.fillText(label, labelX, labelY);
+                        ctx.save();
+                    }
+                }]
+            });
+        }
+
+        function updateAllDatalists() {
+            // Perspective
+            const perspectiveList = document.getElementById('perspectiveList');
+            if (perspectiveList) {
+                const uniquePerspectives = [...new Set(activities.map(a => a.perspective))];
+                perspectiveList.innerHTML = uniquePerspectives.map(p => `<option value="${p}">`).join('');
+            }
+            // Target
+            const targetList = document.getElementById('targetList');
+            if (targetList) {
+                const uniqueTargets = [...new Set(activities.map(a => a.target))];
+                targetList.innerHTML = uniqueTargets.map(t => `<option value="${t}">`).join('');
+            }
+            // Strategy
+            const strategyList = document.getElementById('strategyList');
+            if (strategyList) {
+                const uniqueStrategies = [...new Set(activities.map(a => a.strategy))];
+                strategyList.innerHTML = uniqueStrategies.map(s => `<option value="${s}">`).join('');
+            }
+        }
+
+        function checkPerspectiveOrder() {
+            const val = document.getElementById('perspective').value;
+            const found = activities.find(a => a.perspective === val);
+            if (found) {
+                document.getElementById('perspectiveOrder').value = found.perspectiveOrder;
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                if (event.target.id === 'modal') closeModal();
+                if (event.target.id === 'analysisModal') closeAnalysisModal();
+                if (event.target.id === 'settingsModal') closeSettings();
+                if (event.target.id === 'loginModal') closeLoginModal();
+            }
+        }
+        
+        // Year Picker Logic
+        let currentYearPickerBase = 2020;
+        let selectedYear = 2026;
+
+        function toggleYearPicker() {
+            const picker = document.getElementById('yearPicker');
+            if (picker.classList.contains('show')) {
+                picker.classList.remove('show');
+            } else {
+                // Set base year based on current selection
+                currentYearPickerBase = Math.floor(selectedYear / 10) * 10;
+                renderYearGrid();
+                picker.classList.add('show');
+            }
+        }
+
+        function navigateYearRange(direction) {
+            currentYearPickerBase += (direction * 10);
+            renderYearGrid();
+        }
+
+        function renderYearGrid() {
+            const grid = document.getElementById('yearGrid');
+            const rangeDisplay = document.getElementById('yearRangeDisplay');
+            const endYear = currentYearPickerBase + 9;
+            
+            rangeDisplay.textContent = `${currentYearPickerBase} - ${endYear}`;
+            grid.innerHTML = '';
+
+            // Previous decade last year
+            grid.innerHTML += `<div class="year-cell outside-range" onclick="selectYear(${currentYearPickerBase - 1})">${currentYearPickerBase - 1}</div>`;
+
+            for (let i = 0; i < 10; i++) {
+                const y = currentYearPickerBase + i;
+                const activeClass = y === selectedYear ? 'active' : '';
+                grid.innerHTML += `<div class="year-cell ${activeClass}" onclick="selectYear(${y})">${y}</div>`;
+            }
+
+            // Next decade first year
+            grid.innerHTML += `<div class="year-cell outside-range" onclick="selectYear(${endYear + 1})">${endYear + 1}</div>`;
+        }
+
+        function selectYear(year) {
+            selectedYear = year;
+            updatePeriodDisplay(year);
+            document.getElementById('yearPicker').classList.remove('show');
+            
+            // Beri indikator visual pada tombol load
+            const loadBtn = document.querySelector('.btn-load');
+            loadBtn.classList.add('btn-pulse');
+            loadBtn.innerHTML = '<i class="bi bi-exclamation-circle"></i>';
+            loadBtn.title = "Data tahun " + year + " belum dimuat! Klik untuk sinkronisasi.";
+        }
+
+        function updatePeriodDisplay(year) {
+            selectedYear = parseInt(year);
+            document.getElementById('periodText').textContent = 'Periode: ' + year;
+            document.getElementById('headerPeriod').textContent = year;
+        }
+
+        // Close picker when clicking outside
+        window.addEventListener('click', function(e) {
+            const picker = document.getElementById('yearPicker');
+            const btn = document.querySelector('.btn-period');
+            if (!picker.contains(e.target) && !btn.contains(e.target)) {
+                picker.classList.remove('show');
+            }
+        });
+
+        // Initialize
+        const initYear = new Date().getFullYear();
+        updatePeriodDisplay(initYear);
+
+        renderTable();
+        renderAnalysisTable();
+        renderSidebar();
+
+        // Auto load data if in Apps Script environment
+        if (typeof google !== 'undefined' && google.script) {
+            loadFromSheet();
+        }
+        
+        // Toggle Fullscreen Function
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                document.getElementById('fullscreenIcon').className = 'bi bi-fullscreen-exit';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    document.getElementById('fullscreenIcon').className = 'bi bi-fullscreen';
+                }
+            }
+        }
+
+        // --- START: SIDEBAR SCRIPT ---
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-collapsed');
+        }
+        // --- END: SIDEBAR SCRIPT ---
+        
+        // Custom Tooltip Logic
+        const tooltip = document.getElementById('custom-tooltip');
+
+        document.addEventListener('mouseover', function(e) {
+            let target = e.target;
+            // Traverse up to find element with title, but stop at body
+            while (target && target !== document.body && !target.getAttribute('title') && !target.getAttribute('data-tooltip')) {
+                target = target.parentElement;
+            }
+            
+            if (target && (target.getAttribute('title') || target.getAttribute('data-tooltip'))) {
+                let title = target.getAttribute('title');
+                if (title) {
+                    target.setAttribute('data-tooltip', title);
+                    target.removeAttribute('title');
+                } else {
+                    title = target.getAttribute('data-tooltip');
+                }
+                
+                if (title) {
+                    tooltip.textContent = title;
+                    tooltip.style.display = 'block';
+                }
+            }
+        });
+
+        document.addEventListener('mouseout', function(e) {
+            let target = e.target;
+            while (target && target !== document.body && !target.getAttribute('data-tooltip')) {
+                target = target.parentElement;
+            }
+            
+            if (target && target.getAttribute('data-tooltip')) {
+                const title = target.getAttribute('data-tooltip');
+                target.setAttribute('title', title);
+                target.removeAttribute('data-tooltip');
+                tooltip.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (tooltip.style.display === 'block') {
+                const offset = 15;
+                let left = e.clientX + offset;
+                let top = e.clientY + offset;
+                
+                // Adjust if going off screen
+                if (left + tooltip.offsetWidth > window.innerWidth) {
+                    left = e.clientX - tooltip.offsetWidth - offset;
+                }
+                if (top + tooltip.offsetHeight > window.innerHeight) {
+                    top = e.clientY - tooltip.offsetHeight - offset;
+                }
+                
+                tooltip.style.left = left + 'px';
+                tooltip.style.top = top + 'px';
+            }
+        });
+
+        // --- CONTEXT MENU LOGIC ---
+        function showContextMenu(event, id, type) {
+            event.preventDefault();
+            const menu = document.getElementById('contextMenu');
+            let html = '';
+
+            if (type === 'activity') {
+                const item = activities.find(a => a.id === id);
+                if (!item) return;
+                
+                html += `
+                    <div class="context-menu-item" onclick="window.open('${item.sheetLink}', '_blank')" ${!item.sheetLink ? 'style="opacity:0.5; pointer-events:none;"' : ''}>
+                        <i class="bi bi-file-earmark-spreadsheet" style="color: #0ea5e9;"></i> Buka Sheet
+                    </div>
+                    <div class="context-menu-item" onclick="addFromRow(${id})">
+                        <i class="bi bi-plus-lg" style="color: var(--success);"></i> Duplikasi
+                    </div>
+                    <div class="context-menu-item" onclick="edit(${id})">
+                        <i class="bi bi-pencil" style="color: #d97706;"></i> Edit
+                    </div>
+                    <div class="context-menu-item" onclick="openAnalysisModalFromActivity(${id})">
+                        <i class="bi bi-clipboard-data" style="color: var(--info);"></i> Analisa
+                    </div>
+                    <div class="context-menu-item" onclick="del(${id})">
+                        <i class="bi bi-trash" style="color: var(--danger);"></i> Hapus
+                    </div>
+                `;
+            } else if (type === 'analysis') {
+                html += `
+                    <div class="context-menu-item" onclick="editAnalysis(${id})">
+                        <i class="bi bi-pencil" style="color: #d97706;"></i> Edit
+                    </div>
+                    <div class="context-menu-item" onclick="deleteAnalysis(${id})">
+                        <i class="bi bi-trash" style="color: var(--danger);"></i> Hapus
+                    </div>
+                `;
+            }
+
+            menu.innerHTML = html;
+            menu.style.left = `${event.pageX}px`;
+            menu.style.top = `${event.pageY}px`;
+            menu.classList.add('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('contextMenu');
+            if (menu.classList.contains('show')) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // --- SETTINGS FUNCTIONS ---
+        function openSettings(btn) {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.add('show');
+            modal.classList.add('dropdown-modal');
+            
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                const content = modal.querySelector('.modal-content');
+                content.style.top = (rect.bottom + 10) + 'px';
+                content.style.right = (window.innerWidth - rect.right) + 'px';
+                content.style.left = 'auto';
+                content.style.transformOrigin = 'top right';
+            }
+            
+            // Load current settings
+            const settings = JSON.parse(localStorage.getItem('kpi_settings')) || {};
+            
+            const logoFileInput = document.getElementById('logoFileInput');
+            const currentLogoUrlInput = document.getElementById('currentLogoUrl');
+            const logoPreview = document.getElementById('logoPreview');
+            const nameInput = document.getElementById('companyNameInput');
+            const fontSizeInput = document.getElementById('companyFontSizeInput');
+            const fontFamilyInput = document.getElementById('companyFontFamilyInput');
+            const fontColorInput = document.getElementById('companyFontColorInput');
+            const darkToggle = document.getElementById('darkModeToggle');
+            const autoSaveToggle = document.getElementById('autoSaveToggle');
+
+            const currentLogo = settings.logoUrl || 'https://raw.githubusercontent.com/Ariyanto92/logo/refs/heads/main/ARAYA.jpg';
+            
+            if (logoPreview) {
+                logoPreview.src = currentLogo;
+                logoPreview.style.display = 'block';
+            }
+            if (currentLogoUrlInput) {
+                currentLogoUrlInput.value = currentLogo;
+            }
+            if (logoFileInput) {
+                logoFileInput.value = ''; // Reset file input every time modal opens
+            }
+            if (nameInput) nameInput.value = settings.companyName || 'ARAYA TECH';
+            if (fontSizeInput) fontSizeInput.value = settings.companyFontSize || '12';
+            if (fontFamilyInput) fontFamilyInput.value = settings.companyFontFamily || "'Segoe UI', sans-serif";
+            if (fontColorInput) fontColorInput.value = settings.companyFontColor || '#1e3c72';
+            if (darkToggle) darkToggle.checked = settings.darkMode || false;
+            if (autoSaveToggle) autoSaveToggle.checked = settings.autoSave || false;
+            if (document.getElementById('voiceTutorialToggle')) document.getElementById('voiceTutorialToggle').checked = settings.voiceTutorialEnabled ?? true; // Default to true
+            
+            updateDarkModeLabel(settings.darkMode);
+            updateAutoSaveLabel(settings.autoSave);
+            updateVoiceTutorialLabel(settings.voiceTutorialEnabled ?? true);
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('show');
+        }
+
+        function toggleDarkMode() {
+            const isChecked = document.getElementById('darkModeToggle').checked;
+            updateDarkModeLabel(isChecked);
+            
+            if (isChecked) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        function updateDarkModeLabel(isDark) {
+            const label = document.getElementById('darkModeLabel');
+            if (label) label.innerText = isDark ? "Dark Mode" : "Light Mode";
+        }
+
+        function toggleAutoSave() {
+            const isChecked = document.getElementById('autoSaveToggle').checked;
+            updateAutoSaveLabel(isChecked);
+            
+            if (isChecked) {
+                startAutoSave();
+            } else {
+                stopAutoSave();
+            }
+        }
+
+        function updateAutoSaveLabel(isEnabled) {
+            const label = document.getElementById('autoSaveLabel');
+            if (label) label.innerText = isEnabled ? "Enabled" : "Disabled";
+        }
+
+        function toggleVoiceTutorial() {
+            const isChecked = document.getElementById('voiceTutorialToggle').checked;
+            updateVoiceTutorialLabel(isChecked);
+        }
+
+        function updateVoiceTutorialLabel(isEnabled) {
+            const label = document.getElementById('voiceTutorialLabel');
+            if (label) label.innerText = isEnabled ? "Enabled" : "Disabled";
+        }
+
+       async function saveSettings() {
+            const logoFileInput = document.getElementById('logoFileInput');
+            const currentLogoUrl = document.getElementById('currentLogoUrl').value;
+            const companyName = document.getElementById('companyNameInput').value;
+            const companyFontSize = document.getElementById('companyFontSizeInput').value;
+            const companyFontFamily = document.getElementById('companyFontFamilyInput').value;
+            const companyFontColor = document.getElementById('companyFontColorInput').value;
+            const darkMode = document.getElementById('darkModeToggle').checked;
+            const voiceTutorialEnabled = document.getElementById('voiceTutorialToggle').checked;
+
+            let logoData = currentLogoUrl; // Default to existing URL
+            const file = logoFileInput.files[0];
+            if (file) {
+                try {
+                    logoData = await getBase64(file);
+                } catch (error) {
+                    Swal.fire('Error', 'Gagal memproses file logo.', 'error');
+                    return;
+                }
+            }
+            
+            // Dark mode is a local preference, save it to localStorage
+            const localSettings = JSON.parse(localStorage.getItem('kpi_settings')) || {};
+            localSettings.darkMode = darkMode;
+            localSettings.autoSave = document.getElementById('autoSaveToggle').checked;
+            localSettings.voiceTutorialEnabled = voiceTutorialEnabled;
+            
+            // Save company settings to local storage as well to persist in form
+            localSettings.logoUrl = currentLogoUrl; // Store the old URL for now
+            localSettings.companyName = companyName;
+            localSettings.companyFontSize = companyFontSize;
+            localSettings.companyFontFamily = companyFontFamily;
+            localSettings.companyFontColor = companyFontColor;
+            
+            localStorage.setItem('kpi_settings', JSON.stringify(localSettings));
+            
+            // Company settings are global, save them to Google Sheet
+            const companySettings = { logoUrl: logoData, companyName, companyFontSize, companyFontFamily, companyFontColor };
+
+            if (typeof google !== 'undefined' && google.script) {
+                Swal.fire({
+                    title: 'Menyimpan...',
+                    text: 'Pengaturan perusahaan sedang disimpan ke server.',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading() }
+                });
+
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        if (response.success) {
+                            // Apply the settings returned from the server, which will have the new Drive URL for the logo
+                            applyCompanySettings(response.newSettings);
+                            
+                            // Update localStorage with the definitive server state
+                            const localSettings = JSON.parse(localStorage.getItem('kpi_settings')) || {};
+                            Object.assign(localSettings, response.newSettings);
+                            localStorage.setItem('kpi_settings', JSON.stringify(localSettings));
+                            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Pengaturan berhasil disimpan', showConfirmButton: false, timer: 2000 });
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Gagal', text: response.error });
+                        }
+                        closeSettings();
+                    })
+                    .withFailureHandler(function(error) {
+                        Swal.fire({ icon: 'error', title: 'Error Koneksi', text: error.message });
+                        closeSettings();
+                    })
+                    .saveCompanySettings(companySettings);
+            } else {
+                applyCompanySettings(companySettings);
+                closeSettings();
+                Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Mode Offline: Pengaturan disimpan lokal', showConfirmButton: false, timer: 2000 });
+            }
+        }
+
+        function applyCompanySettings(settings) {
+            if (!settings) return;
+            if (settings.logoUrl) document.querySelector('.logo-wrapper img').src = settings.logoUrl;
+            
+            const companyNameEl = document.querySelector('.company-name');
+            if (settings.companyName) companyNameEl.innerText = settings.companyName;
+            if (settings.companyFontSize) companyNameEl.style.fontSize = settings.companyFontSize + 'px';
+            if (settings.companyFontFamily) companyNameEl.style.fontFamily = settings.companyFontFamily;
+            if (settings.companyFontColor) companyNameEl.style.color = settings.companyFontColor;
+        }
+
+        function applyLocalSettings() {
+            const settings = JSON.parse(localStorage.getItem('kpi_settings'));
+            if (!settings) return;
+            
+            // BARU: Terapkan pengaturan perusahaan (logo, nama, font) dari localStorage saat load
+            applyCompanySettings(settings);
+            
+            if (settings.darkMode) document.body.classList.add('dark-mode');
+            else document.body.classList.remove('dark-mode');
+            
+            if (settings.autoSave) {
+                startAutoSave();
+            } else {
+                stopAutoSave();
+            }
+        }
+        
+        // --- LOGIN FUNCTIONS ---
+        let currentUser = null;
+
+        function handleUserClick(btn) {
+            if (currentUser) {
+                if (isActivitiesDirty || isAnalysisDirty) {
+                    Swal.fire({
+                        title: 'Data Belum Disimpan!',
+                        text: 'Terdapat perubahan yang belum disimpan. Apa yang ingin Anda lakukan?',
+                        icon: 'warning',
+                        showDenyButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: 'Simpan & Logout',
+                        denyButtonText: 'Discard & Logout',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#22c55e',
+                        denyButtonColor: '#ef4444'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            saveAndLogout();
+                        } else if (result.isDenied) {
+                            isActivitiesDirty = false;
+                            isAnalysisDirty = false;
+                            logout(true); // Silent logout
+                            loadFromSheet(); // Reload data to revert changes
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Logout?',
+                        text: `Anda login sebagai ${currentUser}. Ingin keluar?`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Ya, Logout',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            logout();
+                        }
+                    });
+                }
+            } else {
+                openLoginModal(btn);
+            }
+        }
+
+        function logout(silent = false) {
+            currentUser = null;
+            localStorage.removeItem('kpi_user');
+            document.getElementById('userNameDisplay').textContent = 'PPIC, Plant 3';
+            
+            // Reset foto profil ke icon default
+            const userInfo = document.querySelector('.user-info');
+            const img = userInfo.querySelector('img');
+            const icon = userInfo.querySelector('i');
+            if (img) img.remove();
+            if (icon) icon.style.display = 'inline-block';
+            
+            // Reset Company Profile accordion if open
+            const accordionContent = document.getElementById('companyProfileAccordion');
+            if (accordionContent && accordionContent.classList.contains('show')) {
+                accordionContent.classList.remove('show');
+                const accordionHeader = accordionContent.previousElementSibling;
+                if (accordionHeader && accordionHeader.classList.contains('accordion-header')) {
+                    accordionHeader.classList.remove('active');
+                }
+            }
+            
+            if (!silent) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: 'Anda telah logout',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        }
+
+        function openLoginModal(btn) {
+            const modal = document.getElementById('loginModal');
+            modal.classList.add('show');
+            modal.classList.add('dropdown-modal');
+            
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                const content = modal.querySelector('.modal-content');
+                content.style.top = (rect.bottom + 10) + 'px';
+                content.style.right = (window.innerWidth - rect.right) + 'px';
+                content.style.left = 'auto';
+                content.style.transformOrigin = 'top right';
+            }
+            document.getElementById('loginUsername').focus();
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('show');
+        }
+
+        function handleLogin() {
+            const user = document.getElementById('loginUsername').value;
+            const passInput = document.getElementById('loginPassword');
+            const pass = passInput.value;
+            
+            if(!user || !pass) {
+                passInput.classList.add('shake');
+                setTimeout(() => passInput.classList.remove('shake'), 500);
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Username dan Password harus diisi' });
+                return;
+            }
+            
+            const btn = document.querySelector('#loginModal .btn-save');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 5px;"></span> Verifikasi...';
+            btn.disabled = true;
+
+            if (typeof google !== 'undefined' && google.script) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        
+                        if (response.success) {
+                            currentUser = response.fullName;
+                            document.getElementById('userNameDisplay').textContent = currentUser;
+                            
+                            // Simpan ke localStorage jika Remember Me dicentang
+                            if (document.getElementById('rememberMe').checked) {
+                                localStorage.setItem('kpi_user', JSON.stringify({
+                                    fullName: response.fullName,
+                                    photoUrl: response.photoUrl
+                                }));
+                            }
+                            
+                            // Update foto profil jika ada
+                            if (response.photoUrl) {
+                                const userInfo = document.querySelector('.user-info');
+                                const icon = userInfo.querySelector('i');
+                                if (icon) icon.style.display = 'none'; // Sembunyikan icon default
+                                
+                                let img = userInfo.querySelector('img');
+                                if (!img) {
+                                    img = document.createElement('img');
+                                    img.style.width = '24px';
+                                    img.style.height = '24px';
+                                    img.style.borderRadius = '50%';
+                                    img.style.marginRight = '8px';
+                                    img.style.objectFit = 'cover';
+                                    userInfo.insertBefore(img, document.getElementById('userNameDisplay'));
+                                }
+                                img.src = response.photoUrl;
+                                img.style.display = 'inline-block';
+                            }
+                            
+                            closeLoginModal();
+                            document.getElementById('loginUsername').value = '';
+                            document.getElementById('loginPassword').value = '';
+                            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Login berhasil, selamat datang!', showConfirmButton: false, timer: 2000 });
+                        } else {
+                            passInput.classList.add('shake');
+                            setTimeout(() => passInput.classList.remove('shake'), 500);
+                            Swal.fire({ icon: 'error', title: 'Login Gagal', text: response.error });
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        Swal.fire({ icon: 'error', title: 'Error', text: error.message });
+                    })
+                    .checkLogin(user, pass);
+            } else {
+                // Fallback untuk testing offline
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    Swal.fire({ icon: 'info', title: 'Mode Offline', text: 'Validasi login memerlukan Google Apps Script environment.' });
+                }, 500);
+            }
+        }
+        
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('loginPassword');
+            const icon = document.querySelector('.password-toggle-icon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+        
+        // Add Enter key listener for Login
+        document.getElementById('loginUsername').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginPassword').focus();
+            }
+        });
+
+        document.getElementById('loginPassword').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+        
+        function toggleAccordion(id, header) {
+            if (id === 'companyProfileAccordion') {
+                if (currentUser !== 'Admin') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'Akses Ditolak: Hanya Admin',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                    return;
+                }
+            }
+            const content = document.getElementById(id);
+            content.classList.toggle('show');
+            header.classList.toggle('active');
+        }
+        
+        // Cek user yang tersimpan saat load
+        function checkRememberedUser() {
+            const savedUser = localStorage.getItem('kpi_user');
+            if (savedUser) {
+                try {
+                    const userData = JSON.parse(savedUser);
+                    currentUser = userData.fullName;
+                    document.getElementById('userNameDisplay').textContent = currentUser;
+                    
+                    if (userData.photoUrl) {
+                        const userInfo = document.querySelector('.user-info');
+                        const icon = userInfo.querySelector('i');
+                        if (icon) icon.style.display = 'none';
+                        
+                        let img = document.createElement('img');
+                        img.style.width = '24px';
+                        img.style.height = '24px';
+                        img.style.borderRadius = '50%';
+                        img.style.marginRight = '8px';
+                        img.style.objectFit = 'cover';
+                        img.src = userData.photoUrl;
+                        userInfo.insertBefore(img, document.getElementById('userNameDisplay'));
+                    }
+                } catch (e) {
+                    console.error('Gagal memuat user tersimpan', e);
+                }
+            }
+        }
+        
+        // Apply local settings (like dark mode) on page load
+        applyLocalSettings();
+        // Check for a remembered user from a previous session
+        checkRememberedUser();
+        
+        // Caps Lock Detection
+        const passwordInput = document.getElementById('loginPassword');
+        const capsLockWarning = document.getElementById('capsLockWarning');
+
+        function checkCapsLock(e) {
+            if (e.getModifierState && e.getModifierState('CapsLock')) {
+                capsLockWarning.style.display = 'block';
+            } else {
+                capsLockWarning.style.display = 'none';
+            }
+        }
+
+        passwordInput.addEventListener('keyup', checkCapsLock);
+        passwordInput.addEventListener('keydown', checkCapsLock);
+        passwordInput.addEventListener('click', checkCapsLock);
+        passwordInput.addEventListener('focus', checkCapsLock);
+        
+        // --- AUTO SAVE LOGIC ---
+        let autoSaveIntervalId = null;
+
+        function updateStatusIndicator(status, message) {
+            const indicator = document.getElementById('statusIndicator');
+            if (!indicator) return;
+            
+            indicator.className = 'status-indicator'; // Reset classes
+            
+            if (status === 'saving') {
+                indicator.classList.add('saving');
+            } else if (status === 'error') {
+                indicator.classList.add('error');
+            }
+            
+            indicator.setAttribute('data-tooltip', message);
+        }
+
+        function startAutoSave() {
+            if (autoSaveIntervalId) clearInterval(autoSaveIntervalId);
+            // 5 minutes = 300000 ms
+            autoSaveIntervalId = setInterval(performAutoSave, 300000);
+            console.log("Auto save started");
+        }
+
+        function stopAutoSave() {
+            if (autoSaveIntervalId) {
+                clearInterval(autoSaveIntervalId);
+                autoSaveIntervalId = null;
+                console.log("Auto save stopped");
+            }
+        }
+
+        function performAutoSave() {
+            if (!currentUser) return; // Don't auto save if not logged in
+            if (activities.length === 0 && analysisData.length === 0) return; // Nothing to save
+
+            const kpiPeriod = document.getElementById('headerPeriod').textContent;
+            
+            // Silent save using Toast
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+
+            if (typeof google !== 'undefined' && google.script) {
+                // Toast.fire({ icon: 'info', title: 'Auto-saving...' });
+                updateStatusIndicator('saving', 'Auto-saving data...');
+                
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        if (response.success) {
+                            // Toast.fire({ icon: 'success', title: 'Data auto-saved' });
+                            isActivitiesDirty = false;
+                            isAnalysisDirty = false;
+                            updateStatusIndicator('saved', 'Auto-saved at ' + new Date().toLocaleTimeString());
+                        }
+                        else {
+                            updateStatusIndicator('error', 'Auto-save failed: ' + response.error);
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        updateStatusIndicator('error', 'Connection error: ' + error.message);
+                    })
+                    .saveAllData(activities, analysisData, kpiPeriod);
+            }
+        }
+
+        function saveAndLogout() {
+            const kpiPeriod = document.getElementById('headerPeriod').textContent;
+            
+            Swal.fire({
+                title: 'Menyimpan...',
+                text: 'Sedang menyimpan data sebelum logout.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading() }
+            });
+
+            if (typeof google !== 'undefined' && google.script) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        if (response.success) {
+                            isActivitiesDirty = false;
+                            isAnalysisDirty = false;
+                            logout(true); // Silent logout
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Data disimpan & Anda logout',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal Menyimpan',
+                                text: 'Detail: ' + response.error
+                            });
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error Koneksi',
+                            text: error.message
+                        });
+                    })
+                    .saveAllData(activities, analysisData, kpiPeriod);
+            } else {
+                 // Offline fallback
+                 setTimeout(() => {
+                    isActivitiesDirty = false;
+                    isAnalysisDirty = false;
+                    logout();
+                 }, 1000);
+            }
+        }
+
+        // --- TUTORIAL FEATURE ---
+        // Helper function for Text-to-Speech
+        function speakText(text) {
+            // Check if voice is enabled in settings
+            const settings = JSON.parse(localStorage.getItem('kpi_settings')) || {};
+            if (settings.voiceTutorialEnabled === false) { // Explicitly check for false
+                return;
+            }
+
+            if (!window.speechSynthesis) {
+                console.warn("Browser tidak mendukung Web Speech API untuk voice note.");
+                return;
+            }
+
+            // Hentikan narasi sebelumnya agar tidak tumpang tindih
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID'; // Set bahasa ke Indonesia
+            utterance.rate = 1; // Kecepatan normal
+
+            // Fungsi untuk mencari dan mengatur suara (voice)
+            const setVoiceAndSpeak = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const indonesianVoice = voices.find(voice => voice.lang === 'id-ID');
+                if (indonesianVoice) {
+                    utterance.voice = indonesianVoice;
+                }
+                window.speechSynthesis.speak(utterance);
+            };
+
+            // Daftar suara mungkin dimuat secara asynchronous. Jika belum siap, tunggu event 'voiceschanged'.
+            if (window.speechSynthesis.getVoices().length === 0) {
+                window.speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
+            } else {
+                setVoiceAndSpeak();
+            }
+        }
+
+        function startTour() {
+            const driver = window.driver.js.driver;
+            
+            // Helper untuk menambahkan karakter tutor dengan animasi
+            const withTutor = (text) => `
+                <div style="display: flex; gap: 15px; align-items: flex-start;">
+                    <div class="tutor-wrapper">
+                        <img src="https://cdn-icons-png.flaticon.com/512/4202/4202831.png" class="tutor-img" alt="Tutor">
+                    </div>
+                    <div>${text}</div>
+                </div>
+            `;
+
+            const driverObj = driver({
+                showProgress: true,
+                allowClose: true, // Memastikan bisa di-skip dengan klik overlay/ESC
+                nextBtnText: 'Lanjut',
+                prevBtnText: 'Kembali',
+                doneBtnText: 'Selesai',
+                onDestroyed: () => {
+                    // Hentikan suara dan simpan status selesai saat tur benar-benar ditutup
+                    if (window.speechSynthesis) window.speechSynthesis.cancel();
+                    localStorage.setItem('kpi_tutorial_shown', 'true');
+                },
+                onHighlighted: (element, step) => {
+                    if (step.popover && step.popover.description) {
+                        // Gabungkan judul & deskripsi, lalu hapus tag HTML untuk narasi yang bersih
+                        const textToSpeak = (step.popover.title + '. ' + step.popover.description).replace(/<[^>]*>/g, ' ');
+                        speakText(textToSpeak);
+                    }
+                },
+                steps: [
+                    { element: '.header-center', popover: { title: 'Selamat Datang!', description: withTutor('Ini adalah Dashboard KPI Tracker. Anda dapat memantau performa strategis di sini. <br><small>Tekan <b>Esc</b> atau klik di luar kotak ini untuk melewati tur.</small>') } },
+                    { element: '.user-info', popover: { title: 'Login Pengguna', description: withTutor('Klik profil ini untuk Login. Admin memiliki akses penuh. User dapat mengedit status dan menambah data. Sedangkan Guest hanya bisa melihat data.') } },
+                    { element: 'nav', popover: { title: 'Navigasi Perspektif', description: withTutor('Gunakan sidebar ini untuk memfilter KPI berdasarkan perspektif seperti Keuangan, Pelanggan, Proses, dan lainnya.') } },
+                    { element: '.btn-period', popover: { title: 'Pilih Periode', description: withTutor('Klik untuk mengganti tahun periode data yang ingin ditampilkan.') } },
+                    { element: '.btn-load', popover: { title: 'Sinkronisasi Data', description: withTutor('Tombol ini untuk memuat ulang (Refresh) data terbaru dari Google Sheets.') } },
+                    { element: '.summary-stats', popover: { title: 'Ringkasan Statistik', description: withTutor('Kartu ini menampilkan ringkasan cepat total aktivitas dan status penyelesaiannya.') } },
+                    { element: '.dashboard-row', popover: { title: 'Visualisasi Grafik', description: withTutor('Grafik batang dan diagram donat untuk melihat progress KPI secara visual.') } },
+                    { element: '.main-table', popover: { title: 'Tabel Aktivitas', description: withTutor('Daftar detail aktivitas. Anda bisa mengklik kotak bulan di kolom Timeline untuk mengubah status menjadi Plan, Actual, atau Missed.') } },
+                    { element: '#analysis-section', popover: { title: 'Analisa & Perbaikan', description: withTutor('Bagian ini untuk mencatat masalah, analisa, dan rencana perbaikan terkait KPI. Anda bisa menambahkan ilustrasi before dan after.') } },
+                    { element: '.btn-add', popover: { title: 'Tambah Aktivitas', description: withTutor('Klik di sini untuk menambahkan aktivitas strategis baru.') } }
+                ]
+            });
+            driverObj.drive();
+        }
+
+        // Auto-start tutorial for first time users
+        window.addEventListener('load', function() {
+            if (!localStorage.getItem('kpi_tutorial_shown')) {
+                setTimeout(startTour, 1000); // Delay dikurangi agar lebih cepat muncul
+            }
+        });
+
+        function resetTutorial() {
+            localStorage.removeItem('kpi_tutorial_shown');
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Status tutorial direset',
+                showConfirmButton: false,
+                timer: 2000
+            }).then(() => location.reload());
+        }
+    </script>
+</body>
+</html>
