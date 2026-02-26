@@ -12,7 +12,7 @@ function doGet() {
 function saveKPIData(data, kpiPeriod) {
   try {
     // ID Spreadsheet sesuai permintaan
-    var ss = SpreadsheetApp.openById("1I4qIeu_pxGWX5uaDquQ0Tb1zIEBgGDSoXTlOuSl7lEA");
+    var ss = SpreadsheetApp.openById("INSERT_SPREADSHEET_ID");
     var sheet = ss.getSheetByName("KPI Data");
     var headers = ["Timestamp", "ID", "KPI Periode", "PERSPEKTIF", "Perspective Order", "TARGET", "STRATEGY", "ACTIVITY PLAN", "PIC", "TIMELINE (JSON)", "LINK SHEET"];
     
@@ -76,7 +76,7 @@ function saveKPIData(data, kpiPeriod) {
 
 function getKPIData(kpiPeriod) {
   try {
-    var ss = SpreadsheetApp.openById("1I4qIeu_pxGWX5uaDquQ0Tb1zIEBgGDSoXTlOuSl7lEA");
+    var ss = SpreadsheetApp.openById("INSERT_SPREADSHEET_ID");
     var sheet = ss.getSheetByName("KPI Data");
     
     if (!sheet || sheet.getLastRow() < 2) {
@@ -124,7 +124,7 @@ function getKPIData(kpiPeriod) {
 
 function checkLogin(username, password) {
   try {
-    var ss = SpreadsheetApp.openById("1I4qIeu_pxGWX5uaDquQ0Tb1zIEBgGDSoXTlOuSl7lEA");
+    var ss = SpreadsheetApp.openById("INSERT_SPREADSHEET_ID");
     var sheet = ss.getSheetByName("Users");
     
     if (!sheet) {
@@ -279,7 +279,7 @@ function deleteDriveFile(fileUrl) {
 
 function saveCompanySettings(settings) {
   try {
-    var ss = SpreadsheetApp.openById("1I4qIeu_pxGWX5uaDquQ0Tb1zIEBgGDSoXTlOuSl7lEA");
+    var ss = SpreadsheetApp.openById("INSERT_SPREADSHEET_ID");
     var sheet = ss.getSheetByName("Settings");
     
     if (!sheet) {
@@ -329,7 +329,7 @@ function saveCompanySettings(settings) {
 
 function getCompanySettings() {
   try {
-    var ss = SpreadsheetApp.openById("1I4qIeu_pxGWX5uaDquQ0Tb1zIEBgGDSoXTlOuSl7lEA");
+    var ss = SpreadsheetApp.openById("INSERT_SPREADSHEET_ID");
     var sheet = ss.getSheetByName("Settings");
     
     if (!sheet || sheet.getLastRow() < 2) return { success: true, settings: {} };
@@ -347,7 +347,7 @@ function getCompanySettings() {
 
 function saveAnalysisData(data, kpiPeriod) {
   try {
-    var ss = SpreadsheetApp.openById("1I4qIeu_pxGWX5uaDquQ0Tb1zIEBgGDSoXTlOuSl7lEA");
+    var ss = SpreadsheetApp.openById("INSERT_SPREADSHEET_ID");
     var sheet = ss.getSheetByName("Analysis Data");
     var headers = ["Timestamp", "ID", "KPI Periode", "PERSPEKTIF", "MASALAH", "ANALISA", "PERBAIKAN", "BEFORE", "AFTER", "PIC", "DUE DATE", "PROGRESS", "TANGGAL"];
     
@@ -426,7 +426,7 @@ function saveAnalysisData(data, kpiPeriod) {
 
 function getAnalysisData(kpiPeriod) {
   try {
-    var ss = SpreadsheetApp.openById("1I4qIeu_pxGWX5uaDquQ0Tb1zIEBgGDSoXTlOuSl7lEA");
+    var ss = SpreadsheetApp.openById("INSERT_SPREADSHEET_ID");
     var sheet = ss.getSheetByName("Analysis Data");
     
     if (!sheet || sheet.getLastRow() < 2) return { success: true, data: [] };
@@ -481,3 +481,4 @@ function getAllData(kpiPeriod) {
     error: r1.error || r2.error || r3.error 
   };
 }
+
